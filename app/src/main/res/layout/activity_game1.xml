@@ -7,6 +7,16 @@
     android:gravity="center"
     android:padding="16dp">
 
+    <!-- High Score Display -->
+    <TextView
+        android:id="@+id/high_score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="High Score: 0"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
     <!-- Start Button -->
     <Button
         android:id="@+id/start_button"
@@ -38,5 +48,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Submit"
+        android:visibility="gone" />
+
+    <!-- Score Display -->
+    <TextView
+        android:id="@+id/score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textStyle="bold"
         android:visibility="gone" />
 </LinearLayout>
