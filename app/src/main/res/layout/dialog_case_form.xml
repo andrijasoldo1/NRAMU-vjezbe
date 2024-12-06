@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/caseNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Case Name" />
+
+        <EditText
+            android:id="@+id/caseDescriptionInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description"
+            android:inputType="textMultiLine" />
+
+        <EditText
+            android:id="@+id/casePriceInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Price"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/caseTypeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Type of Case" />
+
+        <EditText
+            android:id="@+id/caseStatusInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Status" />
+
+        <EditText
+            android:id="@+id/caseAnonymousInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Anonymous (true/false)" />
+
+        <EditText
+            android:id="@+id/caseDocumentationInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Attached Documentation" />
+    </LinearLayout>
+</ScrollView>
