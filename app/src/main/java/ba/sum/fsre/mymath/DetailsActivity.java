@@ -11,6 +11,8 @@ import android.os.Bundle;
 
 import com.google.android.material.navigation.NavigationView;
 
+import ba.sum.fsre.mymath.fragments.AllCasesFragment;
+import ba.sum.fsre.mymath.fragments.UserCasesFragment;
 import ba.sum.fsre.mymath.fragments.DetailsFragment;
 import ba.sum.fsre.mymath.fragments.ListViewFragment;
 
@@ -45,17 +47,20 @@ public class DetailsActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(item -> {
             Fragment selectedFragment = null;
 
-            // Navigate based on menu item selection
             if (item.getItemId() == R.id.nav_profil) {
                 selectedFragment = new DetailsFragment();
             } else if (item.getItemId() == R.id.nav_lekcije) {
                 selectedFragment = new ListViewFragment();
             } else if (item.getItemId() == R.id.nav_game1) {
-                // Launch Game1Activity
                 startActivity(new Intent(this, Game1Activity.class));
+            } else if (item.getItemId() == R.id.nav_cases) {
+                // Default to AllCasesFragment, or prompt to choose
+                selectedFragment = new AllCasesFragment();
+            } else if (item.getItemId() == R.id.nav_user_cases) {
+                // Navigate to UserCasesFragment
+                selectedFragment = new UserCasesFragment();
             }
 
-            // Replace fragment if applicable
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, selectedFragment)
