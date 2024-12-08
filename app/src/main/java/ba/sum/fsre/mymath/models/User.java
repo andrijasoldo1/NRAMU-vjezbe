@@ -16,21 +16,20 @@ public class User {
     private int yearOfStartingUniversity;
     private int yearOfFinishingUniversity;
     private String areaOfExpertise;
-    private boolean isApproved; // default to false
-    private String role;
-    private String CV;
-    private String picture;
+    private boolean isApproved; // Indicates if the user is approved as a lawyer
+    private boolean lawyerRequestPending; // Indicates if the user has requested lawyer status
+    private String role; // Role of the user (e.g., "User", "Lawyer")
+    private String CV; // Link to the CV document
+    private String picture; // Link to the profile picture
 
-    // Default constructor (required for Firebase)
     public User() {
-        this.isApproved = false; // default value
+        // Default constructor required for Firebase
     }
 
-    // Parameterized constructor (you can customize this)
     public User(String firstName, String lastName, String eMail, String telephone, String gender,
                 String address, String dateOfBirth, String placeOfBirth, String university,
                 int yearOfStartingUniversity, int yearOfFinishingUniversity, String areaOfExpertise,
-                boolean isApproved, String role, String CV, String picture) {
+                boolean isApproved, boolean lawyerRequestPending, String role, String CV, String picture) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.eMail = eMail;
@@ -44,12 +43,11 @@ public class User {
         this.yearOfFinishingUniversity = yearOfFinishingUniversity;
         this.areaOfExpertise = areaOfExpertise;
         this.isApproved = isApproved;
+        this.lawyerRequestPending = lawyerRequestPending;
         this.role = role;
         this.CV = CV;
         this.picture = picture;
     }
-
-    // Getters and setters for all fields
 
     @PropertyName("firstName")
     public String getFirstName() {
@@ -179,6 +177,16 @@ public class User {
     @PropertyName("isApproved")
     public void setApproved(boolean approved) {
         isApproved = approved;
+    }
+
+    @PropertyName("lawyerRequestPending")
+    public boolean isLawyerRequestPending() {
+        return lawyerRequestPending;
+    }
+
+    @PropertyName("lawyerRequestPending")
+    public void setLawyerRequestPending(boolean lawyerRequestPending) {
+        this.lawyerRequestPending = lawyerRequestPending;
     }
 
     @PropertyName("role")

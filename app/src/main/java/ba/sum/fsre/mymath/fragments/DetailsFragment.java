@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +27,8 @@ public class DetailsFragment extends Fragment {
     private EditText firstNameTxt, lastNameTxt, eMailTxt, dateOfBirthTxt, telephoneTxt, genderTxt,
             addressTxt, placeOfBirthTxt, universityTxt, yearStartTxt, yearFinishTxt,
             expertiseTxt, roleTxt, cvTxt, pictureTxt;
+
+    private Button requestLawyerStatusButton;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,6 +59,15 @@ public class DetailsFragment extends Fragment {
             }
         });
 
+        // Request lawyer status button functionality
+        requestLawyerStatusButton.setOnClickListener(view -> {
+            if (uid != null) {
+                requestLawyerStatus(uid);
+            } else {
+                Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return v;
     }
 
@@ -76,6 +88,7 @@ public class DetailsFragment extends Fragment {
         roleTxt = v.findViewById(R.id.roleTxt);
         cvTxt = v.findViewById(R.id.cvTxt);
         pictureTxt = v.findViewById(R.id.pictureTxt);
+        requestLawyerStatusButton = v.findViewById(R.id.requestLawyerStatusButton);
     }
 
     private void loadUserData(String uid) {
@@ -86,6 +99,7 @@ public class DetailsFragment extends Fragment {
                     User user = document.toObject(User.class);
                     if (user != null) {
                         populateFields(user);
+                        updateRequestButtonState(user);
                     }
                 } else {
                     Toast.makeText(getContext(), "User data not found", Toast.LENGTH_SHORT).show();
@@ -115,6 +129,19 @@ public class DetailsFragment extends Fragment {
         pictureTxt.setText(user.getPicture());
     }
 
+    private void updateRequestButtonState(User user) {
+        if (user.isApproved()) {
+            requestLawyerStatusButton.setEnabled(false);
+            requestLawyerStatusButton.setText("Already a Lawyer");
+        } else if (user.isLawyerRequestPending()) {
+            requestLawyerStatusButton.setEnabled(false);
+            requestLawyerStatusButton.setText("Request Pending");
+        } else {
+            requestLawyerStatusButton.setEnabled(true);
+            requestLawyerStatusButton.setText("Request Lawyer Status");
+        }
+    }
+
     private void saveUserDetails(String uid) {
         // Validate input fields before saving
         if (validateFields()) {
@@ -131,7 +158,8 @@ public class DetailsFragment extends Fragment {
                     Integer.parseInt(yearStartTxt.getText().toString()),
                     Integer.parseInt(yearFinishTxt.getText().toString()),
                     expertiseTxt.getText().toString(),
-                    false, // Default value for isApproved
+                    false, // Default isApproved
+                    false, // Default lawyerRequestPending
                     roleTxt.getText().toString(),
                     cvTxt.getText().toString(),
                     pictureTxt.getText().toString()
@@ -143,6 +171,18 @@ public class DetailsFragment extends Fragment {
                 Toast.makeText(getContext(), "Failed to save profile.", Toast.LENGTH_SHORT).show();
             });
         }
+    }
+
+    private void requestLawyerStatus(String uid) {
+        db.collection("users").document(uid).update("lawyerRequestPending", true)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "Lawyer request submitted.", Toast.LENGTH_SHORT).show();
+                    requestLawyerStatusButton.setEnabled(false);
+                    requestLawyerStatusButton.setText("Request Pending");
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to submit request.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private boolean validateFields() {
