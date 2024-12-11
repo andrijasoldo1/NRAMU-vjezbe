@@ -1,11 +1,19 @@
 package ba.sum.fsre.mymath.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,19 +24,25 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
+
 import ba.sum.fsre.mymath.R;
 import ba.sum.fsre.mymath.models.User;
 
 public class DetailsFragment extends Fragment {
+
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
     private EditText firstNameTxt, lastNameTxt, eMailTxt, dateOfBirthTxt, telephoneTxt, genderTxt,
             addressTxt, placeOfBirthTxt, universityTxt, yearStartTxt, yearFinishTxt,
-            expertiseTxt, roleTxt, cvTxt, pictureTxt;
+            expertiseTxt, roleTxt, cvTxt;
 
-    private Button requestLawyerStatusButton;
+    private ImageView profileImageView;
+    private Button requestLawyerStatusButton, selectPictureBtn;
+    private String base64Image;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,7 +56,7 @@ public class DetailsFragment extends Fragment {
         bindViews(v);
 
         // Fetch user data
-        String uid = mAuth.getCurrentUser().getUid();
+        String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
         if (uid != null) {
             loadUserData(uid);
         } else {
@@ -68,11 +82,13 @@ public class DetailsFragment extends Fragment {
             }
         });
 
+        // Select picture button functionality
+        selectPictureBtn.setOnClickListener(view -> openImagePicker());
+
         return v;
     }
 
     private void bindViews(View v) {
-        // Bind all EditText fields to their corresponding IDs in the layout
         firstNameTxt = v.findViewById(R.id.firstNameTxt);
         lastNameTxt = v.findViewById(R.id.lastNameTxt);
         eMailTxt = v.findViewById(R.id.eMailTxt);
@@ -87,8 +103,52 @@ public class DetailsFragment extends Fragment {
         expertiseTxt = v.findViewById(R.id.expertiseTxt);
         roleTxt = v.findViewById(R.id.roleTxt);
         cvTxt = v.findViewById(R.id.cvTxt);
-        pictureTxt = v.findViewById(R.id.pictureTxt);
+        profileImageView = v.findViewById(R.id.profileImageView);
         requestLawyerStatusButton = v.findViewById(R.id.requestLawyerStatusButton);
+        selectPictureBtn = v.findViewById(R.id.selectPictureBtn);
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri selectedImageUri = data.getData();
+            profileImageView.setImageURI(selectedImageUri);
+
+            // Convert image to Base64
+            convertImageToBase64(selectedImageUri);
+        }
+    }
+
+    private void convertImageToBase64(Uri imageUri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            byte[] imageBytes = baos.toByteArray();
+            base64Image = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+            // Save Base64 string to Firestore
+            saveImageToFirestore(base64Image);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveImageToFirestore(String base64Image) {
+        String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        if (uid != null) {
+            db.collection("users").document(uid)
+                    .update("picture", base64Image)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to update picture", Toast.LENGTH_SHORT).show());
+        }
     }
 
     private void loadUserData(String uid) {
@@ -111,7 +171,6 @@ public class DetailsFragment extends Fragment {
     }
 
     private void populateFields(User user) {
-        // Populate UI fields with user data
         firstNameTxt.setText(user.getFirstName());
         lastNameTxt.setText(user.getLastName());
         eMailTxt.setText(user.geteMail());
@@ -126,7 +185,22 @@ public class DetailsFragment extends Fragment {
         expertiseTxt.setText(user.getAreaOfExpertise());
         roleTxt.setText(user.getRole());
         cvTxt.setText(user.getCV());
-        pictureTxt.setText(user.getPicture());
+
+        if (user.getPicture() != null && !user.getPicture().isEmpty()) {
+            byte[] decodedBytes = Base64.decode(user.getPicture(), Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            profileImageView.setImageBitmap(bitmap);
+        }
+    }
+
+    private void requestLawyerStatus(String uid) {
+        db.collection("users").document(uid).update("lawyerRequestPending", true)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "Lawyer request submitted.", Toast.LENGTH_SHORT).show();
+                    requestLawyerStatusButton.setEnabled(false);
+                    requestLawyerStatusButton.setText("Request Pending");
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to submit request.", Toast.LENGTH_SHORT).show());
     }
 
     private void updateRequestButtonState(User user) {
@@ -158,11 +232,11 @@ public class DetailsFragment extends Fragment {
                     Integer.parseInt(yearStartTxt.getText().toString()),
                     Integer.parseInt(yearFinishTxt.getText().toString()),
                     expertiseTxt.getText().toString(),
-                    false, // Default isApproved
-                    false, // Default lawyerRequestPending
+                    false,
+                    false,
                     roleTxt.getText().toString(),
                     cvTxt.getText().toString(),
-                    pictureTxt.getText().toString()
+                    base64Image // Save Base64 image
             );
 
             db.collection("users").document(uid).set(updatedUser).addOnSuccessListener(aVoid -> {
@@ -171,18 +245,6 @@ public class DetailsFragment extends Fragment {
                 Toast.makeText(getContext(), "Failed to save profile.", Toast.LENGTH_SHORT).show();
             });
         }
-    }
-
-    private void requestLawyerStatus(String uid) {
-        db.collection("users").document(uid).update("lawyerRequestPending", true)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Lawyer request submitted.", Toast.LENGTH_SHORT).show();
-                    requestLawyerStatusButton.setEnabled(false);
-                    requestLawyerStatusButton.setText("Request Pending");
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to submit request.", Toast.LENGTH_SHORT).show();
-                });
     }
 
     private boolean validateFields() {

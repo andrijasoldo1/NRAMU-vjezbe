@@ -16,11 +16,11 @@ public class User {
     private int yearOfStartingUniversity;
     private int yearOfFinishingUniversity;
     private String areaOfExpertise;
-    private boolean isApproved; // Indicates if the user is approved as a lawyer
-    private boolean lawyerRequestPending; // Indicates if the user has requested lawyer status
-    private String role; // Role of the user (e.g., "User", "Lawyer")
-    private String CV; // Link to the CV document
-    private String picture; // Link to the profile picture
+    private boolean isApproved;
+    private boolean lawyerRequestPending;
+    private String role;
+    private String CV;
+    private String picture; // Base64 string of the profile picture
 
     public User() {
         // Default constructor required for Firebase
