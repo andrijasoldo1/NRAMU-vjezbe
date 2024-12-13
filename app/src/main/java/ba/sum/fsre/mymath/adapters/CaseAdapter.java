@@ -31,7 +31,7 @@ public class CaseAdapter extends ArrayAdapter<Case> {
     private final List<Case> cases;
     private final EditCaseCallback callback;
 
-    public CaseAdapter(Context context, List<Case> cases, EditCaseCallback callback) {
+    public CaseAdapter(Context context, List<Case> cases, @NonNull EditCaseCallback callback) {
         super(context, R.layout.list_item_case, cases);
         this.context = context;
         this.cases = cases;
@@ -56,22 +56,36 @@ public class CaseAdapter extends ArrayAdapter<Case> {
             caseNameView.setText(aCase.getName());
             caseStatusView.setText(aCase.getStatus());
 
-            editButton.setOnClickListener(v -> callback.onEdit(aCase));
+            // Edit Button Listener
+            editButton.setOnClickListener(v -> {
+                if (callback != null) {
+                    callback.onEdit(aCase);
+                } else {
+                    Log.e(TAG, "Edit callback is null");
+                    Toast.makeText(context, "Edit callback is not defined", Toast.LENGTH_SHORT).show();
+                }
+            });
 
+            // Delete Button Listener
             deleteButton.setOnClickListener(v -> {
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("cases")
-                        .document(aCase.getId())
-                        .delete()
-                        .addOnSuccessListener(aVoid -> {
-                            cases.remove(position);
-                            notifyDataSetChanged();
-                            Toast.makeText(context, "Case deleted successfully", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Failed to delete case", e);
-                            Toast.makeText(context, "Failed to delete case", Toast.LENGTH_SHORT).show();
-                        });
+                if (aCase.getId() != null) {
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("cases")
+                            .document(aCase.getId())
+                            .delete()
+                            .addOnSuccessListener(aVoid -> {
+                                cases.remove(position);
+                                notifyDataSetChanged();
+                                Toast.makeText(context, "Case deleted successfully", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Failed to delete case", e);
+                                Toast.makeText(context, "Failed to delete case", Toast.LENGTH_SHORT).show();
+                            });
+                } else {
+                    Log.e(TAG, "Case ID is null, cannot delete");
+                    Toast.makeText(context, "Case ID is invalid, cannot delete", Toast.LENGTH_SHORT).show();
+                }
             });
         } catch (Exception e) {
             Log.e(TAG, "Error in getView: ", e);

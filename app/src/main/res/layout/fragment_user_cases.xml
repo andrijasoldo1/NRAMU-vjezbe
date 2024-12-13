@@ -4,29 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- ScrollView for Input Fields -->
+    <!-- Form Section -->
     <ScrollView
         android:id="@+id/formScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="16dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Case Name -->
+            <!-- Input Fields -->
             <EditText
                 android:id="@+id/caseNameInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Case Name" />
+                android:hint="Case Name"
+                android:inputType="text" />
 
-            <!-- Description -->
             <EditText
                 android:id="@+id/caseDescriptionInput"
                 android:layout_width="match_parent"
@@ -34,7 +34,6 @@
                 android:hint="Description"
                 android:inputType="textMultiLine" />
 
-            <!-- Price -->
             <EditText
                 android:id="@+id/casePriceInput"
                 android:layout_width="match_parent"
@@ -42,36 +41,51 @@
                 android:hint="Price"
                 android:inputType="numberDecimal" />
 
-            <!-- Type of Case -->
             <EditText
                 android:id="@+id/caseTypeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Type of Case" />
+                android:hint="Type of Case"
+                android:inputType="text" />
 
-            <!-- Status -->
             <EditText
                 android:id="@+id/caseStatusInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Status" />
+                android:hint="Status"
+                android:inputType="text" />
 
-            <!-- Anonymous -->
             <EditText
                 android:id="@+id/caseAnonymousInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Anonymous (true/false)" />
+                android:hint="Anonymous (true/false)"
+                android:inputType="text" />
 
-            <!-- Save Button -->
+            <!-- Attach Document -->
+            <Button
+                android:id="@+id/selectDocumentButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Attach Document"
+                android:layout_marginTop="8dp" />
+
+            <!-- Attached Documents -->
+            <LinearLayout
+                android:id="@+id/documentThumbnailContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp" />
+
+            <!-- Save and Clear Buttons -->
             <Button
                 android:id="@+id/saveCaseButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Save Case"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="16dp" />
 
-            <!-- Clear Button -->
             <Button
                 android:id="@+id/clearCaseFormButton"
                 android:layout_width="match_parent"
@@ -81,7 +95,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- ListView for Existing Cases -->
+    <!-- List of Cases -->
     <ListView
         android:id="@+id/listView"
         android:layout_width="0dp"
@@ -90,7 +104,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:paddingTop="8dp" />
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

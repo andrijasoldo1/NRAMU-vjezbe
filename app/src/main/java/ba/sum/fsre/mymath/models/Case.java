@@ -1,35 +1,35 @@
 package ba.sum.fsre.mymath.models;
 
-import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.PropertyName;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Case {
 
-    @DocumentId
     private String id; // Firestore document ID
-
-    private String name;
-    private String userId; // ID of the user who owns the case
-    private String lawyerId; // ID of the assigned lawyer
-    private double price;
-    private String description;
-    private String attachedDocumentation;
-    private String status; // Open, In Progress, Closed
-    private boolean isAnonymous;
-    private String typeOfCase;
+    private String name; // Case name
+    private String userId; // User who owns the case
+    private String lawyerId; // Assigned lawyer ID
+    private double price; // Price of the case
+    private String description; // Case description
+    private Object attachedDocumentation; // Flexible to handle both String and List<String>
+    private String status; // Case status (e.g., "Open")
+    private boolean isAnonymous; // Whether the case is anonymous
+    private String typeOfCase; // Type of case (e.g., "Civil")
 
     public Case() {
         // Default constructor for Firestore
     }
 
     public Case(String name, String userId, String lawyerId, double price, String description,
-                String attachedDocumentation, String status, boolean isAnonymous, String typeOfCase) {
+                List<String> attachedDocumentation, String status, boolean isAnonymous, String typeOfCase) {
         this.name = name;
         this.userId = userId;
         this.lawyerId = lawyerId;
         this.price = price;
         this.description = description;
-        this.attachedDocumentation = attachedDocumentation;
+        this.attachedDocumentation = attachedDocumentation != null ? attachedDocumentation : new ArrayList<>();
         this.status = status;
         this.isAnonymous = isAnonymous;
         this.typeOfCase = typeOfCase;
@@ -96,12 +96,20 @@ public class Case {
     }
 
     @PropertyName("attachedDocumentation")
-    public String getAttachedDocumentation() {
-        return attachedDocumentation;
+    public List<String> getAttachedDocumentation() {
+        if (attachedDocumentation instanceof String) {
+            // Convert single String to a List<String>
+            List<String> docs = new ArrayList<>();
+            docs.add((String) attachedDocumentation);
+            return docs;
+        } else if (attachedDocumentation instanceof List) {
+            return (List<String>) attachedDocumentation;
+        }
+        return new ArrayList<>();
     }
 
     @PropertyName("attachedDocumentation")
-    public void setAttachedDocumentation(String attachedDocumentation) {
+    public void setAttachedDocumentation(Object attachedDocumentation) {
         this.attachedDocumentation = attachedDocumentation;
     }
 
