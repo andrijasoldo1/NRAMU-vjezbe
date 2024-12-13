@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,7 +51,8 @@ public class UserCasesFragment extends Fragment {
     private CaseAdapter adapter;
 
     private EditText caseNameInput, caseDescriptionInput, casePriceInput, caseTypeInput, caseStatusInput, caseAnonymousInput;
-    private Button saveCaseButton, clearFormButton, selectDocumentButton;
+    private Button saveCaseButton, clearFormButton, selectDocumentButton, toggleFormButton;
+    private boolean isFormVisible = true;
 
     private Case currentEditingCase = null;
     private List<Uri> attachedDocumentsUris;
@@ -64,6 +66,7 @@ public class UserCasesFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         listView = view.findViewById(R.id.listView);
 
+        toggleFormButton = view.findViewById(R.id.toggleFormButton);
         caseNameInput = view.findViewById(R.id.caseNameInput);
         caseDescriptionInput = view.findViewById(R.id.caseDescriptionInput);
         casePriceInput = view.findViewById(R.id.casePriceInput);
@@ -85,8 +88,21 @@ public class UserCasesFragment extends Fragment {
         saveCaseButton.setOnClickListener(v -> saveOrUpdateCase());
         clearFormButton.setOnClickListener(v -> clearForm());
         selectDocumentButton.setOnClickListener(v -> selectDocument());
+        toggleFormButton.setOnClickListener(v -> toggleFormVisibility());
 
         return view;
+    }
+
+    private void toggleFormVisibility() {
+        ScrollView formScrollView = requireView().findViewById(R.id.formScrollView);
+        if (isFormVisible) {
+            formScrollView.setVisibility(View.GONE);
+            toggleFormButton.setText("Show Form");
+        } else {
+            formScrollView.setVisibility(View.VISIBLE);
+            toggleFormButton.setText("Hide Form");
+        }
+        isFormVisible = !isFormVisible;
     }
 
     private void selectDocument() {
