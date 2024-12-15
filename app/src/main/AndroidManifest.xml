@@ -14,28 +14,39 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyMath">
+
+        <activity
+            android:name=".MessagesActivity"
+            android:exported="false" />
         <activity
             android:name=".PdfViewerActivity"
             android:exported="false" />
+        <!-- Chat Activity -->
+        <activity
+            android:name=".ChatActivity"
+            android:exported="true" />
         <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Cases Activity -->
+        </activity>
+        <!-- Cases Activity -->
         <activity
             android:name=".CasesActivity"
-            android:exported="true" /> <!-- Details Activity -->
+            android:exported="true" />
+        <!-- Details Activity -->
         <activity
             android:name=".DetailsActivity"
-            android:exported="true" /> <!-- Game1 Activity -->
+            android:exported="true" />
+        <!-- Game1 Activity -->
         <activity
             android:name=".Game1Activity"
-            android:exported="true" /> <!-- Firebase Messaging Service -->
+            android:exported="true" />
+        <!-- Firebase Messaging Service -->
         <service
             android:name=".services.MyFirebaseMessagingService"
             android:exported="true">
@@ -44,5 +55,4 @@
             </intent-filter>
         </service>
     </application>
-
 </manifest>

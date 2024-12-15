@@ -15,6 +15,7 @@ import ba.sum.fsre.mymath.fragments.AllCasesFragment;
 import ba.sum.fsre.mymath.fragments.UserCasesFragment;
 import ba.sum.fsre.mymath.fragments.DetailsFragment;
 import ba.sum.fsre.mymath.fragments.ListViewFragment;
+import ba.sum.fsre.mymath.fragments.MessagesFragment;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -54,11 +55,11 @@ public class DetailsActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.nav_game1) {
                 startActivity(new Intent(this, Game1Activity.class));
             } else if (item.getItemId() == R.id.nav_cases) {
-                // Default to AllCasesFragment, or prompt to choose
                 selectedFragment = new AllCasesFragment();
             } else if (item.getItemId() == R.id.nav_user_cases) {
-                // Navigate to UserCasesFragment
                 selectedFragment = new UserCasesFragment();
+            } else if (item.getItemId() == R.id.nav_messages) {
+                selectedFragment = new MessagesFragment(); // Navigate to MessagesFragment
             }
 
             if (selectedFragment != null) {

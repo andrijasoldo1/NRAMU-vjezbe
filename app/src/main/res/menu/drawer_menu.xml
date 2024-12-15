@@ -19,4 +19,8 @@
     <item
         android:id="@+id/nav_user_cases"
         android:title="My Cases" />
+
+    <item
+        android:id="@+id/nav_messages"
+        android:title="Messages" />
 </menu>
