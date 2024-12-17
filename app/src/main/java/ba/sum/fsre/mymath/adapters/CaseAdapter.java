@@ -30,12 +30,14 @@ public class CaseAdapter extends ArrayAdapter<Case> {
     private final Context context;
     private final List<Case> cases;
     private final EditCaseCallback callback;
+    private final FirebaseFirestore db;
 
     public CaseAdapter(Context context, List<Case> cases, @NonNull EditCaseCallback callback) {
         super(context, R.layout.list_item_case, cases);
         this.context = context;
         this.cases = cases;
         this.callback = callback;
+        this.db = FirebaseFirestore.getInstance();
     }
 
     @NonNull
@@ -48,20 +50,44 @@ public class CaseAdapter extends ArrayAdapter<Case> {
         try {
             TextView caseNameView = convertView.findViewById(R.id.case_name);
             TextView caseStatusView = convertView.findViewById(R.id.case_status);
+            TextView caseTypeView = convertView.findViewById(R.id.case_type);
+            TextView userEmailView = convertView.findViewById(R.id.user_email);
             Button editButton = convertView.findViewById(R.id.edit_button);
             Button deleteButton = convertView.findViewById(R.id.delete_button);
 
             Case aCase = cases.get(position);
 
+            // Set case details
             caseNameView.setText(aCase.getName());
             caseStatusView.setText(aCase.getStatus());
+            caseTypeView.setText("Type: " + aCase.getTypeOfCase()); // Display type of case
+
+            // Fetch user email from Firestore using userId
+            if (aCase.getUserId() != null) {
+                db.collection("users")
+                        .document(aCase.getUserId())
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                String email = documentSnapshot.getString("eMail");
+                                userEmailView.setText(email != null ? "Created by: " + email : "Created by: Unknown");
+                            } else {
+                                userEmailView.setText("Created by: Unknown");
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to fetch user email", e);
+                            userEmailView.setText("Created by: Unknown");
+                        });
+            } else {
+                userEmailView.setText("Created by: Unknown");
+            }
 
             // Edit Button Listener
             editButton.setOnClickListener(v -> {
                 if (callback != null) {
                     callback.onEdit(aCase);
                 } else {
-                    Log.e(TAG, "Edit callback is null");
                     Toast.makeText(context, "Edit callback is not defined", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -69,7 +95,6 @@ public class CaseAdapter extends ArrayAdapter<Case> {
             // Delete Button Listener
             deleteButton.setOnClickListener(v -> {
                 if (aCase.getId() != null) {
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
                     db.collection("cases")
                             .document(aCase.getId())
                             .delete()
@@ -82,9 +107,6 @@ public class CaseAdapter extends ArrayAdapter<Case> {
                                 Log.e(TAG, "Failed to delete case", e);
                                 Toast.makeText(context, "Failed to delete case", Toast.LENGTH_SHORT).show();
                             });
-                } else {
-                    Log.e(TAG, "Case ID is null, cannot delete");
-                    Toast.makeText(context, "Case ID is invalid, cannot delete", Toast.LENGTH_SHORT).show();
                 }
             });
         } catch (Exception e) {

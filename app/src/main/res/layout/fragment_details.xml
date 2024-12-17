@@ -17,6 +17,7 @@
             android:orientation="vertical"
             android:padding="20dp">
 
+            <!-- Profile Image -->
             <ImageView
                 android:id="@+id/profileImageView"
                 android:layout_width="150dp"
@@ -32,6 +33,7 @@
                 android:layout_height="wrap_content"
                 android:text="Select Picture" />
 
+            <!-- User Info -->
             <EditText
                 android:id="@+id/firstNameTxt"
                 android:layout_width="match_parent"
@@ -53,6 +55,20 @@
                 android:hint="Unesite Vaš email"
                 android:inputType="textEmailAddress" />
 
+            <!-- Spinner for Expertise -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Odaberite Područje Stručnosti"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp" />
+
+            <Spinner
+                android:id="@+id/expertiseSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Other Fields -->
             <EditText
                 android:id="@+id/dateOfBirthTxt"
                 android:layout_width="match_parent"
@@ -110,13 +126,6 @@
                 android:inputType="number" />
 
             <EditText
-                android:id="@+id/expertiseTxt"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Područje stručnosti"
-                android:inputType="text" />
-
-            <EditText
                 android:id="@+id/roleTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,14 +136,16 @@
                 android:id="@+id/cvTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Unesite link na CV"
+                android:hint="CV"
                 android:inputType="textUri" />
 
+            <!-- Save and Request Buttons -->
             <Button
                 android:id="@+id/saveProfileBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Spasi podatke" />
+                android:text="Spasi podatke"
+                android:layout_marginTop="16dp" />
 
             <Button
                 android:id="@+id/requestLawyerStatusButton"

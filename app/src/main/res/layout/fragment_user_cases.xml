@@ -51,19 +51,31 @@
                 android:hint="Price"
                 android:inputType="numberDecimal" />
 
-            <EditText
+            <!-- Type of Case Spinner -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Type of Case"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp" />
+
+            <Spinner
                 android:id="@+id/caseTypeInput"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Type of Case"
-                android:inputType="text" />
+                android:layout_height="wrap_content" />
 
-            <EditText
-                android:id="@+id/caseStatusInput"
-                android:layout_width="match_parent"
+            <!-- Status Spinner -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Status"
-                android:inputType="text" />
+                android:text="Status"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp" />
+
+            <Spinner
+                android:id="@+id/status_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <EditText
                 android:id="@+id/caseAnonymousInput"

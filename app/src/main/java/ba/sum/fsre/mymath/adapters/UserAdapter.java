@@ -37,9 +37,28 @@ public class UserAdapter extends ArrayAdapter<User> {
 
         TextView userNameView = convertView.findViewById(R.id.user_name);
         TextView userEmailView = convertView.findViewById(R.id.user_email);
+        TextView userExpertiseView = convertView.findViewById(R.id.user_expertise);
+        TextView userLawyerStatusView = convertView.findViewById(R.id.user_lawyer_status);
 
+        // Set name and email
         userNameView.setText(user.getFirstName() + " " + user.getLastName());
         userEmailView.setText(user.geteMail());
+
+        // Set area of expertise
+        if (user.getAreaOfExpertise() != null && !user.getAreaOfExpertise().isEmpty()) {
+            userExpertiseView.setText("Podrucje strucnosti: " + user.getAreaOfExpertise());
+            userExpertiseView.setVisibility(View.VISIBLE);
+        } else {
+            userExpertiseView.setVisibility(View.GONE);
+        }
+
+        // Display "Odvjetnik" if user is approved
+        if (user.isApproved()) {
+            userLawyerStatusView.setVisibility(View.VISIBLE);
+            userLawyerStatusView.setText("Odvjetnik");
+        } else {
+            userLawyerStatusView.setVisibility(View.GONE);
+        }
 
         return convertView;
     }

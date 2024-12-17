@@ -11,9 +11,11 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,6 +27,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import ba.sum.fsre.mymath.R;
 import ba.sum.fsre.mymath.models.User;
@@ -36,35 +40,39 @@ public class DetailsFragment extends Fragment {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
-    private EditText firstNameTxt, lastNameTxt, eMailTxt, dateOfBirthTxt, telephoneTxt, genderTxt,
-            addressTxt, placeOfBirthTxt, universityTxt, yearStartTxt, yearFinishTxt,
-            expertiseTxt, roleTxt, cvTxt;
+    private TextView firstNameTxt, lastNameTxt, eMailTxt, dateOfBirthTxt, telephoneTxt, genderTxt,
+            addressTxt, placeOfBirthTxt, universityTxt, yearStartTxt, yearFinishTxt, roleTxt, cvTxt;
 
+    private Spinner expertiseSpinner;
     private ImageView profileImageView;
-    private Button requestLawyerStatusButton, selectPictureBtn;
+    private Button requestLawyerStatusButton, selectPictureBtn, saveProfileBtn;
+
     private String base64Image;
+    private List<String> expertiseList;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_details, container, false);
 
-        // Initialize Firebase instances
+        // Initialize Firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
-        // Bind UI elements
+        // Bind views
         bindViews(v);
 
-        // Fetch user data
-        String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        // Initialize expertise list
+        loadExpertiseOptions();
+
+        // Load user data
+        String uid = getUserId();
         if (uid != null) {
             loadUserData(uid);
         } else {
             Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
         }
 
-        // Save button functionality
-        Button saveProfileBtn = v.findViewById(R.id.saveProfileBtn);
+        // Button listeners
         saveProfileBtn.setOnClickListener(view -> {
             if (uid != null) {
                 saveUserDetails(uid);
@@ -72,8 +80,7 @@ public class DetailsFragment extends Fragment {
                 Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
             }
         });
-
-        // Request lawyer status button functionality
+        selectPictureBtn.setOnClickListener(view -> openImagePicker());
         requestLawyerStatusButton.setOnClickListener(view -> {
             if (uid != null) {
                 requestLawyerStatus(uid);
@@ -81,9 +88,6 @@ public class DetailsFragment extends Fragment {
                 Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
             }
         });
-
-        // Select picture button functionality
-        selectPictureBtn.setOnClickListener(view -> openImagePicker());
 
         return v;
     }
@@ -100,72 +104,57 @@ public class DetailsFragment extends Fragment {
         universityTxt = v.findViewById(R.id.universityTxt);
         yearStartTxt = v.findViewById(R.id.yearStartTxt);
         yearFinishTxt = v.findViewById(R.id.yearFinishTxt);
-        expertiseTxt = v.findViewById(R.id.expertiseTxt);
+        expertiseSpinner = v.findViewById(R.id.expertiseSpinner);
         roleTxt = v.findViewById(R.id.roleTxt);
         cvTxt = v.findViewById(R.id.cvTxt);
+
         profileImageView = v.findViewById(R.id.profileImageView);
-        requestLawyerStatusButton = v.findViewById(R.id.requestLawyerStatusButton);
         selectPictureBtn = v.findViewById(R.id.selectPictureBtn);
+        requestLawyerStatusButton = v.findViewById(R.id.requestLawyerStatusButton);
+        saveProfileBtn = v.findViewById(R.id.saveProfileBtn);
     }
 
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    private String getUserId() {
+        return mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            Uri selectedImageUri = data.getData();
-            profileImageView.setImageURI(selectedImageUri);
+    private void loadExpertiseOptions() {
+        expertiseList = new ArrayList<>();
 
-            // Convert image to Base64
-            convertImageToBase64(selectedImageUri);
-        }
+        db.collection("expertises").get().addOnSuccessListener(querySnapshot -> {
+            for (DocumentSnapshot doc : querySnapshot) {
+                expertiseList.add(doc.getString("name"));
+            }
+            populateExpertiseSpinner();
+        }).addOnFailureListener(e -> {
+            expertiseList.add("Kazneno pravo");
+            expertiseList.add("Građansko pravo");
+            expertiseList.add("Trgovačko pravo");
+            expertiseList.add("Upravno pravo");
+            expertiseList.add("Radno pravo");
+            expertiseList.add("Obiteljsko pravo");
+            expertiseList.add("Nekretninsko pravo");
+            expertiseList.add("Intelektualno vlasništvo");
+            expertiseList.add("Međunarodno privatno pravo");
+            expertiseList.add("Ovršno pravo");
+            populateExpertiseSpinner();
+        });
     }
 
-    private void convertImageToBase64(Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-            byte[] imageBytes = baos.toByteArray();
-            base64Image = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-
-            // Save Base64 string to Firestore
-            saveImageToFirestore(base64Image);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void saveImageToFirestore(String base64Image) {
-        String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-        if (uid != null) {
-            db.collection("users").document(uid)
-                    .update("picture", base64Image)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to update picture", Toast.LENGTH_SHORT).show());
-        }
+    private void populateExpertiseSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, expertiseList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        expertiseSpinner.setAdapter(adapter);
     }
 
     private void loadUserData(String uid) {
-        db.collection("users").document(uid).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    User user = document.toObject(User.class);
-                    if (user != null) {
-                        populateFields(user);
-                        updateRequestButtonState(user);
-                    }
-                } else {
-                    Toast.makeText(getContext(), "User data not found", Toast.LENGTH_SHORT).show();
+        db.collection("users").document(uid).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                User user = doc.toObject(User.class);
+                if (user != null) {
+                    populateFields(user);
+                    updateRequestButtonState(user);
                 }
-            } else {
-                Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -182,25 +171,14 @@ public class DetailsFragment extends Fragment {
         universityTxt.setText(user.getUniversity());
         yearStartTxt.setText(String.valueOf(user.getYearOfStartingUniversity()));
         yearFinishTxt.setText(String.valueOf(user.getYearOfFinishingUniversity()));
-        expertiseTxt.setText(user.getAreaOfExpertise());
         roleTxt.setText(user.getRole());
         cvTxt.setText(user.getCV());
 
-        if (user.getPicture() != null && !user.getPicture().isEmpty()) {
+        if (user.getPicture() != null) {
             byte[] decodedBytes = Base64.decode(user.getPicture(), Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
             profileImageView.setImageBitmap(bitmap);
         }
-    }
-
-    private void requestLawyerStatus(String uid) {
-        db.collection("users").document(uid).update("lawyerRequestPending", true)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Lawyer request submitted.", Toast.LENGTH_SHORT).show();
-                    requestLawyerStatusButton.setEnabled(false);
-                    requestLawyerStatusButton.setText("Request Pending");
-                })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to submit request.", Toast.LENGTH_SHORT).show());
     }
 
     private void updateRequestButtonState(User user) {
@@ -217,9 +195,8 @@ public class DetailsFragment extends Fragment {
     }
 
     private void saveUserDetails(String uid) {
-        // Validate input fields before saving
         if (validateFields()) {
-            User updatedUser = new User(
+            User user = new User(
                     firstNameTxt.getText().toString(),
                     lastNameTxt.getText().toString(),
                     eMailTxt.getText().toString(),
@@ -231,19 +208,19 @@ public class DetailsFragment extends Fragment {
                     universityTxt.getText().toString(),
                     Integer.parseInt(yearStartTxt.getText().toString()),
                     Integer.parseInt(yearFinishTxt.getText().toString()),
-                    expertiseTxt.getText().toString(),
+                    expertiseSpinner.getSelectedItem().toString(),
                     false,
                     false,
                     roleTxt.getText().toString(),
                     cvTxt.getText().toString(),
-                    base64Image // Save Base64 image
+                    base64Image
             );
 
-            db.collection("users").document(uid).set(updatedUser).addOnSuccessListener(aVoid -> {
-                Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-            }).addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Failed to save profile.", Toast.LENGTH_SHORT).show();
-            });
+            db.collection("users").document(uid).set(user).addOnSuccessListener(aVoid ->
+                    Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+            ).addOnFailureListener(e ->
+                    Toast.makeText(getContext(), "Failed to save profile.", Toast.LENGTH_SHORT).show()
+            );
         }
     }
 
@@ -252,14 +229,48 @@ public class DetailsFragment extends Fragment {
             Toast.makeText(getContext(), "Name fields cannot be empty", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (eMailTxt.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "Email cannot be empty", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (yearStartTxt.getText().toString().isEmpty() || yearFinishTxt.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "University years cannot be empty", Toast.LENGTH_SHORT).show();
-            return false;
-        }
         return true;
+    }
+
+    private void requestLawyerStatus(String uid) {
+        db.collection("users").document(uid).update("lawyerRequestPending", true).addOnSuccessListener(aVoid -> {
+            Toast.makeText(getContext(), "Request submitted", Toast.LENGTH_SHORT).show();
+            requestLawyerStatusButton.setEnabled(false);
+            requestLawyerStatusButton.setText("Request Pending");
+        });
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            profileImageView.setImageURI(imageUri);
+            convertImageToBase64(imageUri);
+        }
+    }
+
+    private void convertImageToBase64(Uri imageUri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            base64Image = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            saveImageToFirestore(base64Image);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveImageToFirestore(String base64Image) {
+        String uid = getUserId();
+        if (uid != null) {
+            db.collection("users").document(uid).update("picture", base64Image);
+        }
     }
 }
