@@ -1,9 +1,13 @@
 package ba.sum.fsre.mymath.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -20,15 +24,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import ba.sum.fsre.mymath.R;
 import ba.sum.fsre.mymath.models.User;
@@ -36,16 +46,18 @@ import ba.sum.fsre.mymath.models.User;
 public class DetailsFragment extends Fragment {
 
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
+    private FusedLocationProviderClient fusedLocationClient;
 
     private TextView firstNameTxt, lastNameTxt, eMailTxt, dateOfBirthTxt, telephoneTxt, genderTxt,
             addressTxt, placeOfBirthTxt, universityTxt, yearStartTxt, yearFinishTxt, roleTxt, cvTxt;
 
     private Spinner expertiseSpinner;
     private ImageView profileImageView;
-    private Button requestLawyerStatusButton, selectPictureBtn, saveProfileBtn;
+    private Button requestLawyerStatusButton, selectPictureBtn, saveProfileBtn, getLocationBtn;
 
     private String base64Image;
     private List<String> expertiseList;
@@ -57,6 +69,9 @@ public class DetailsFragment extends Fragment {
         // Initialize Firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+
+        // Initialize FusedLocationProviderClient
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         // Bind views
         bindViews(v);
@@ -80,7 +95,9 @@ public class DetailsFragment extends Fragment {
                 Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
             }
         });
+
         selectPictureBtn.setOnClickListener(view -> openImagePicker());
+
         requestLawyerStatusButton.setOnClickListener(view -> {
             if (uid != null) {
                 requestLawyerStatus(uid);
@@ -88,6 +105,8 @@ public class DetailsFragment extends Fragment {
                 Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
             }
         });
+
+        getLocationBtn.setOnClickListener(view -> checkLocationPermission());
 
         return v;
     }
@@ -112,6 +131,7 @@ public class DetailsFragment extends Fragment {
         selectPictureBtn = v.findViewById(R.id.selectPictureBtn);
         requestLawyerStatusButton = v.findViewById(R.id.requestLawyerStatusButton);
         saveProfileBtn = v.findViewById(R.id.saveProfileBtn);
+        getLocationBtn = v.findViewById(R.id.getLocationBtn);
     }
 
     private String getUserId() {
@@ -120,7 +140,6 @@ public class DetailsFragment extends Fragment {
 
     private void loadExpertiseOptions() {
         expertiseList = new ArrayList<>();
-
         db.collection("expertises").get().addOnSuccessListener(querySnapshot -> {
             for (DocumentSnapshot doc : querySnapshot) {
                 expertiseList.add(doc.getString("name"));
@@ -130,13 +149,6 @@ public class DetailsFragment extends Fragment {
             expertiseList.add("Kazneno pravo");
             expertiseList.add("Građansko pravo");
             expertiseList.add("Trgovačko pravo");
-            expertiseList.add("Upravno pravo");
-            expertiseList.add("Radno pravo");
-            expertiseList.add("Obiteljsko pravo");
-            expertiseList.add("Nekretninsko pravo");
-            expertiseList.add("Intelektualno vlasništvo");
-            expertiseList.add("Međunarodno privatno pravo");
-            expertiseList.add("Ovršno pravo");
             populateExpertiseSpinner();
         });
     }
@@ -195,41 +207,31 @@ public class DetailsFragment extends Fragment {
     }
 
     private void saveUserDetails(String uid) {
-        if (validateFields()) {
-            User user = new User(
-                    firstNameTxt.getText().toString(),
-                    lastNameTxt.getText().toString(),
-                    eMailTxt.getText().toString(),
-                    telephoneTxt.getText().toString(),
-                    genderTxt.getText().toString(),
-                    addressTxt.getText().toString(),
-                    dateOfBirthTxt.getText().toString(),
-                    placeOfBirthTxt.getText().toString(),
-                    universityTxt.getText().toString(),
-                    Integer.parseInt(yearStartTxt.getText().toString()),
-                    Integer.parseInt(yearFinishTxt.getText().toString()),
-                    expertiseSpinner.getSelectedItem().toString(),
-                    false,
-                    false,
-                    roleTxt.getText().toString(),
-                    cvTxt.getText().toString(),
-                    base64Image
-            );
+        User user = new User(
+                firstNameTxt.getText().toString(),
+                lastNameTxt.getText().toString(),
+                eMailTxt.getText().toString(),
+                telephoneTxt.getText().toString(),
+                genderTxt.getText().toString(),
+                addressTxt.getText().toString(),
+                dateOfBirthTxt.getText().toString(),
+                placeOfBirthTxt.getText().toString(),
+                universityTxt.getText().toString(),
+                Integer.parseInt(yearStartTxt.getText().toString()),
+                Integer.parseInt(yearFinishTxt.getText().toString()),
+                expertiseSpinner.getSelectedItem().toString(),
+                false,
+                false,
+                roleTxt.getText().toString(),
+                cvTxt.getText().toString(),
+                base64Image
+        );
 
-            db.collection("users").document(uid).set(user).addOnSuccessListener(aVoid ->
-                    Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-            ).addOnFailureListener(e ->
-                    Toast.makeText(getContext(), "Failed to save profile.", Toast.LENGTH_SHORT).show()
-            );
-        }
-    }
-
-    private boolean validateFields() {
-        if (firstNameTxt.getText().toString().isEmpty() || lastNameTxt.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "Name fields cannot be empty", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
+        db.collection("users").document(uid).set(user).addOnSuccessListener(aVoid ->
+                Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+        ).addOnFailureListener(e ->
+                Toast.makeText(getContext(), "Failed to save profile.", Toast.LENGTH_SHORT).show()
+        );
     }
 
     private void requestLawyerStatus(String uid) {
@@ -238,6 +240,61 @@ public class DetailsFragment extends Fragment {
             requestLawyerStatusButton.setEnabled(false);
             requestLawyerStatusButton.setText("Request Pending");
         });
+    }
+
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            getCurrentLocation();
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private void getCurrentLocation() {
+        try {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    fetchPlaceName(latitude, longitude);
+                } else {
+                    Toast.makeText(getContext(), "Unable to fetch location.", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(e ->
+                    Toast.makeText(getContext(), "Error fetching location: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
+        } catch (SecurityException e) {
+            Toast.makeText(getContext(), "Location access error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void fetchPlaceName(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                String placeName = addresses.get(0).getLocality() + ", " + addresses.get(0).getCountryName();
+                placeOfBirthTxt.setText(placeName);
+            } else {
+                Toast.makeText(getContext(), "Unable to determine location name.", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Error fetching location name: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation();
+            } else {
+                Toast.makeText(getContext(), "Location permission denied.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void openImagePicker() {
@@ -262,8 +319,8 @@ public class DetailsFragment extends Fragment {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             base64Image = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
             saveImageToFirestore(base64Image);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Error processing image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
