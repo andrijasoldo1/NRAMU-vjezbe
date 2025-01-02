@@ -1,16 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Full-Screen ImageView for PDF Pages -->
+    <!-- ImageView to display the current PDF page -->
     <ImageView
         android:id="@+id/pdfImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter" />
 
-    <!-- Navigation Buttons -->
+    <!-- Navigation Buttons at the bottom of the screen -->
     <LinearLayout
         android:id="@+id/navigationButtons"
         android:layout_width="wrap_content"
@@ -20,17 +19,27 @@
         android:layout_centerHorizontal="true"
         android:padding="16dp">
 
+        <!-- Button to navigate to the previous page -->
         <Button
             android:id="@+id/prevPageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Previous" />
 
+        <!-- Button to navigate to the next page -->
         <Button
             android:id="@+id/nextPageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Next"
+            android:layout_marginStart="16dp" />
+
+        <!-- Button to download the PDF -->
+        <Button
+            android:id="@+id/downloadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Download"
             android:layout_marginStart="16dp" />
     </LinearLayout>
 </RelativeLayout>

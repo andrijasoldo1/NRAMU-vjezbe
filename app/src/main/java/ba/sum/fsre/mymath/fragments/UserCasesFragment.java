@@ -25,6 +25,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import ba.sum.fsre.mymath.PdfViewerActivity;
 import ba.sum.fsre.mymath.R;
 import ba.sum.fsre.mymath.adapters.CaseAdapter;
 import ba.sum.fsre.mymath.models.Case;
@@ -45,8 +46,8 @@ public class UserCasesFragment extends Fragment {
     private boolean isFormVisible = true;
     private Case currentEditingCase = null;
     private List<String> attachedDocumentsBase64;
-    private List<String> expertiseList; // List of "Type of Case" options
-    private List<String> statusList;    // List of "Status" options
+    private List<String> expertiseList;
+    private List<String> statusList;
 
     @Nullable
     @Override
@@ -165,8 +166,7 @@ public class UserCasesFragment extends Fragment {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (currentEditingCase == null) {
-            // Create a new case
-            Case newCase = new Case(name, userId, null, price, description, attachedDocumentsBase64, status, isAnonymous, typeOfCase);
+            Case newCase = new Case(name, userId, null, price, description, new ArrayList<>(attachedDocumentsBase64), status, isAnonymous, typeOfCase);
             db.collection("cases").add(newCase)
                     .addOnSuccessListener(documentReference -> {
                         newCase.setId(documentReference.getId());
@@ -175,13 +175,13 @@ public class UserCasesFragment extends Fragment {
                         clearForm();
                     });
         } else {
-            // Update existing case
             currentEditingCase.setName(name);
             currentEditingCase.setDescription(description);
             currentEditingCase.setPrice(price);
             currentEditingCase.setTypeOfCase(typeOfCase);
             currentEditingCase.setStatus(status);
             currentEditingCase.setAnonymous(isAnonymous);
+            currentEditingCase.setAttachedDocumentation(new ArrayList<>(attachedDocumentsBase64));
 
             db.collection("cases").document(currentEditingCase.getId()).set(currentEditingCase)
                     .addOnSuccessListener(aVoid -> {
@@ -200,6 +200,7 @@ public class UserCasesFragment extends Fragment {
         statusSpinner.setSelection(0);
         caseAnonymousInput.setText("");
         attachedDocumentsBase64.clear();
+        updateAttachedDocsListView();
         currentEditingCase = null;
     }
 
@@ -217,6 +218,12 @@ public class UserCasesFragment extends Fragment {
         if (statusList.contains(existingCase.getStatus())) {
             statusSpinner.setSelection(statusList.indexOf(existingCase.getStatus()));
         }
+
+        attachedDocumentsBase64.clear();
+        if (existingCase.getAttachedDocumentation() != null) {
+            attachedDocumentsBase64.addAll(existingCase.getAttachedDocumentation());
+        }
+        updateAttachedDocsListView();
     }
 
     private void toggleFormVisibility() {
@@ -230,5 +237,126 @@ public class UserCasesFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("application/pdf");
         startActivityForResult(intent, PICK_DOCUMENT_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            Uri documentUri = data.getData();
+            if (documentUri != null) {
+                convertDocumentToBase64(documentUri);
+            }
+        }
+    }
+
+    private void convertDocumentToBase64(Uri documentUri) {
+        try {
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(documentUri);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            String base64String = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+            attachedDocumentsBase64.add(base64String);
+            updateAttachedDocsListView();
+            Toast.makeText(requireContext(), "Document attached successfully!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireContext(), "Failed to attach document", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private Bitmap generatePdfThumbnailFromBase64(String base64Document) {
+        try {
+            byte[] decodedBytes = Base64.decode(base64Document, Base64.DEFAULT);
+            InputStream inputStream = new ByteArrayInputStream(decodedBytes);
+
+            ParcelFileDescriptor pfd = createParcelFileDescriptorFromInputStream(inputStream);
+            if (pfd != null) {
+                PdfRenderer renderer = new PdfRenderer(pfd);
+                PdfRenderer.Page page = renderer.openPage(0);
+
+                Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+
+                page.close();
+                renderer.close();
+                pfd.close();
+
+                return bitmap;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private ParcelFileDescriptor createParcelFileDescriptorFromInputStream(InputStream inputStream) {
+        try {
+            File tempFile = File.createTempFile("temp_pdf", ".pdf", requireContext().getCacheDir());
+            tempFile.deleteOnExit();
+
+            OutputStream outputStream = new FileOutputStream(tempFile);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            outputStream.close();
+            inputStream.close();
+
+            return ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void updateAttachedDocsListView() {
+        LinearLayout container = requireView().findViewById(R.id.documentThumbnailContainer);
+        container.removeAllViews();
+
+        for (int i = 0; i < attachedDocumentsBase64.size(); i++) {
+            final int index = i;
+
+            LinearLayout itemLayout = new LinearLayout(requireContext());
+            itemLayout.setOrientation(LinearLayout.HORIZONTAL);
+            itemLayout.setPadding(8, 8, 8, 8);
+
+            ImageView thumbnail = new ImageView(requireContext());
+            thumbnail.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
+
+            Bitmap pdfThumbnail = generatePdfThumbnailFromBase64(attachedDocumentsBase64.get(index));
+            if (pdfThumbnail != null) {
+                thumbnail.setImageBitmap(pdfThumbnail);
+            } else {
+                thumbnail.setImageResource(android.R.drawable.ic_menu_report_image);
+            }
+
+            thumbnail.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), PdfViewerActivity.class);
+                intent.putExtra(PdfViewerActivity.EXTRA_PDF_BASE64, attachedDocumentsBase64.get(index));
+                startActivity(intent);
+            });
+
+            itemLayout.addView(thumbnail);
+
+            Button detachButton = new Button(requireContext());
+            detachButton.setText("Detach");
+            detachButton.setOnClickListener(v -> {
+                attachedDocumentsBase64.remove(index);
+                updateAttachedDocsListView();
+            });
+            itemLayout.addView(detachButton);
+
+            container.addView(itemLayout);
+        }
     }
 }

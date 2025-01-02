@@ -3,7 +3,9 @@ package ba.sum.fsre.mymath;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.util.Base64;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -23,7 +25,7 @@ public class PdfViewerActivity extends AppCompatActivity {
     private ParcelFileDescriptor fileDescriptor;
 
     private ImageView pdfImageView;
-    private Button prevPageButton, nextPageButton;
+    private Button prevPageButton, nextPageButton, downloadButton;
 
     private int pageIndex = 0;
 
@@ -35,6 +37,7 @@ public class PdfViewerActivity extends AppCompatActivity {
         pdfImageView = findViewById(R.id.pdfImageView);
         prevPageButton = findViewById(R.id.prevPageButton);
         nextPageButton = findViewById(R.id.nextPageButton);
+        downloadButton = findViewById(R.id.downloadButton);
 
         String base64Pdf = getIntent().getStringExtra(EXTRA_PDF_BASE64);
         if (base64Pdf == null || base64Pdf.isEmpty()) {
@@ -47,11 +50,12 @@ public class PdfViewerActivity extends AppCompatActivity {
 
         prevPageButton.setOnClickListener(v -> showPage(pageIndex - 1));
         nextPageButton.setOnClickListener(v -> showPage(pageIndex + 1));
+        downloadButton.setOnClickListener(v -> downloadPdf(base64Pdf));
     }
 
     private void displayPdf(String base64Pdf) {
         try {
-            byte[] pdfData = android.util.Base64.decode(base64Pdf, android.util.Base64.DEFAULT);
+            byte[] pdfData = Base64.decode(base64Pdf, Base64.DEFAULT);
 
             // Create a temporary file to hold the PDF data
             File tempFile = File.createTempFile("temp_pdf", ".pdf", getCacheDir());
@@ -90,6 +94,28 @@ public class PdfViewerActivity extends AppCompatActivity {
         this.pageIndex = pageIndex;
         prevPageButton.setEnabled(pageIndex > 0);
         nextPageButton.setEnabled(pageIndex < pdfRenderer.getPageCount() - 1);
+    }
+
+    private void downloadPdf(String base64Pdf) {
+        try {
+            byte[] pdfData = Base64.decode(base64Pdf, Base64.DEFAULT);
+
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
+            }
+
+            File pdfFile = new File(downloadsDir, "downloaded_pdf_" + System.currentTimeMillis() + ".pdf");
+            OutputStream outputStream = new FileOutputStream(pdfFile);
+            outputStream.write(pdfData);
+            outputStream.close();
+
+            Toast.makeText(this, "PDF downloaded to " + pdfFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to download PDF", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
