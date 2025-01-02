@@ -8,6 +8,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -44,10 +45,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean addressDisplayed = false; // Prevent multiple address messages
     private LocationCallback locationCallback;
 
+    // Declare the EditText to display Latitude and Longitude
+    private EditText latLonEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        // Initialize the EditText to display latitude and longitude
+        latLonEditText = findViewById(R.id.latLonEditText);
 
         // Initialize FusedLocationProviderClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -97,6 +104,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
                     saveLocationToFirestore(location.getLatitude(), location.getLongitude());
+
+                    // Update the EditText with latitude and longitude
+                    latLonEditText.setText("Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude());
 
                     // Reverse geocode only once
                     if (!addressDisplayed) {
