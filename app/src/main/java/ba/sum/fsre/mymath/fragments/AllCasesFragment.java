@@ -38,6 +38,8 @@ public class AllCasesFragment extends Fragment {
     private ListView listView;
     private EditText searchBar;
     private Spinner sortSpinner;
+    private Spinner statusSpinner;
+    private Spinner expertiseSpinner;
     private List<Case> allCases;
     private List<Case> filteredCases;
     private Map<String, String> userEmails; // Maps userId to eMail
@@ -55,6 +57,8 @@ public class AllCasesFragment extends Fragment {
         listView = view.findViewById(R.id.listView);
         searchBar = view.findViewById(R.id.search_bar);
         sortSpinner = view.findViewById(R.id.sort_spinner);
+        statusSpinner = view.findViewById(R.id.status_spinner);
+        expertiseSpinner = view.findViewById(R.id.expertise_spinner);
 
         // Initialize Case Lists and Adapter
         allCases = new ArrayList<>();
@@ -82,6 +86,11 @@ public class AllCasesFragment extends Fragment {
         // Load All Non-Anonymous Cases
         loadAllCases();
 
+        // Setup Filters and Sorting
+        setupStatusSpinner();
+        setupExpertiseSpinner();
+        setupSortSpinner();
+
         // Add Search Functionality
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -95,9 +104,6 @@ public class AllCasesFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {}
         });
-
-        // Setup Sorting Functionality
-        setupSortSpinner();
 
         return view;
     }
@@ -143,6 +149,60 @@ public class AllCasesFragment extends Fragment {
         }
     }
 
+    private void setupStatusSpinner() {
+        List<String> statusList = new ArrayList<>();
+        statusList.add("All");
+        statusList.add("Open");
+        statusList.add("In Progress");
+        statusList.add("Closed");
+        statusList.add("Archived");
+
+        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, statusList);
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        statusSpinner.setAdapter(statusAdapter);
+
+        statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                filterAndSortCases();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void setupExpertiseSpinner() {
+        List<String> expertiseList = new ArrayList<>();
+        expertiseList.add("All");
+        expertiseList.add("Kazneno pravo");
+        expertiseList.add("Građansko pravo");
+        expertiseList.add("Trgovačko pravo");
+        expertiseList.add("Upravno pravo");
+        expertiseList.add("Radno pravo");
+        expertiseList.add("Obiteljsko pravo");
+        expertiseList.add("Nekretninsko pravo");
+        expertiseList.add("Intelektualno vlasništvo");
+        expertiseList.add("Međunarodno privatno pravo");
+        expertiseList.add("Ovršno pravo");
+
+        ArrayAdapter<String> expertiseAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, expertiseList);
+        expertiseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        expertiseSpinner.setAdapter(expertiseAdapter);
+
+        expertiseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                filterAndSortCases();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
     private void setupSortSpinner() {
         ArrayAdapter<String> sortAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item,
@@ -163,24 +223,28 @@ public class AllCasesFragment extends Fragment {
 
     private void filterAndSortCases() {
         String query = searchBar.getText().toString().toLowerCase();
+        String selectedStatus = (String) statusSpinner.getSelectedItem();
+        String selectedExpertise = (String) expertiseSpinner.getSelectedItem();
         String selectedSort = (String) sortSpinner.getSelectedItem();
 
         filteredCases.clear();
 
         for (Case c : allCases) {
-            // Retrieve "createdBy" email from the userEmails map
             String createdBy = userEmails.getOrDefault(c.getUserId(), "unknown");
 
-            // Check all searchable fields
-            if (c.getName().toLowerCase().contains(query) ||
+            boolean matchesQuery = c.getName().toLowerCase().contains(query) ||
                     c.getStatus().toLowerCase().contains(query) ||
                     c.getTypeOfCase().toLowerCase().contains(query) ||
-                    createdBy.contains(query)) {
+                    createdBy.contains(query);
+
+            boolean matchesStatus = selectedStatus.equals("All") || c.getStatus().equalsIgnoreCase(selectedStatus);
+            boolean matchesExpertise = selectedExpertise.equals("All") || c.getTypeOfCase().equalsIgnoreCase(selectedExpertise);
+
+            if (matchesQuery && matchesStatus && matchesExpertise) {
                 filteredCases.add(c);
             }
         }
 
-        // Sort cases based on the selected criteria
         switch (selectedSort) {
             case "Alphabetical (A-Z)":
                 Collections.sort(filteredCases, Comparator.comparing(Case::getName, String::compareToIgnoreCase));
@@ -189,10 +253,8 @@ public class AllCasesFragment extends Fragment {
                 Collections.sort(filteredCases, (case1, case2) -> case2.getName().compareToIgnoreCase(case1.getName()));
                 break;
             case "Newest First":
-                // Keep the original order as Firestore returns the newest documents first
                 break;
             case "Oldest First":
-                // Reverse the list to show oldest first
                 Collections.reverse(filteredCases);
                 break;
         }
