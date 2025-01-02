@@ -69,17 +69,15 @@ public class DetailsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_details, container, false);
 
-        // Initialize Firebase
+        // Initialize Firebase and Location Services
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
-
-        // Initialize FusedLocationProviderClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         // Bind views
         bindViews(v);
 
-        // Initialize expertise list
+        // Load expertise options
         loadExpertiseOptions();
 
         // Load user data
@@ -87,7 +85,7 @@ public class DetailsFragment extends Fragment {
         if (uid != null) {
             loadUserData(uid);
         } else {
-            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "User not logged in.", Toast.LENGTH_SHORT).show();
         }
 
         // Button listeners
@@ -95,7 +93,7 @@ public class DetailsFragment extends Fragment {
             if (uid != null) {
                 saveUserDetails(uid);
             } else {
-                Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "User not logged in.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -105,7 +103,7 @@ public class DetailsFragment extends Fragment {
             if (uid != null) {
                 requestLawyerStatus(uid);
             } else {
-                Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "User not logged in.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -140,10 +138,6 @@ public class DetailsFragment extends Fragment {
         selectLocationBtn = v.findViewById(R.id.selectLocationBtn);
     }
 
-    private String getUserId() {
-        return mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-    }
-
     private void loadExpertiseOptions() {
         expertiseList = new ArrayList<>();
         db.collection("expertises").get().addOnSuccessListener(querySnapshot -> {
@@ -155,6 +149,13 @@ public class DetailsFragment extends Fragment {
             expertiseList.add("Kazneno pravo");
             expertiseList.add("Građansko pravo");
             expertiseList.add("Trgovačko pravo");
+            expertiseList.add("Upravno pravo");
+            expertiseList.add("Radno pravo");
+            expertiseList.add("Obiteljsko pravo");
+            expertiseList.add("Nekretninsko pravo");
+            expertiseList.add("Intelektualno vlasništvo");
+            expertiseList.add("Međunarodno privatno pravo");
+            expertiseList.add("Ovršno pravo");
             populateExpertiseSpinner();
         });
     }
@@ -163,6 +164,10 @@ public class DetailsFragment extends Fragment {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, expertiseList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         expertiseSpinner.setAdapter(adapter);
+    }
+
+    private String getUserId() {
+        return mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
     }
 
     private void loadUserData(String uid) {
@@ -242,10 +247,35 @@ public class DetailsFragment extends Fragment {
 
     private void requestLawyerStatus(String uid) {
         db.collection("users").document(uid).update("lawyerRequestPending", true).addOnSuccessListener(aVoid -> {
-            Toast.makeText(getContext(), "Request submitted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Request submitted.", Toast.LENGTH_SHORT).show();
             requestLawyerStatusButton.setEnabled(false);
             requestLawyerStatusButton.setText("Request Pending");
         });
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    private void convertImageToBase64(Uri imageUri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), imageUri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            base64Image = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            profileImageView.setImageBitmap(bitmap);
+            saveImageToFirestore(base64Image);
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Failed to process image.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveImageToFirestore(String base64Image) {
+        String uid = getUserId();
+        if (uid != null) {
+            db.collection("users").document(uid).update("picture", base64Image);
+        }
     }
 
     private void checkLocationPermission() {
@@ -269,11 +299,9 @@ public class DetailsFragment extends Fragment {
                 } else {
                     Toast.makeText(getContext(), "Unable to fetch location.", Toast.LENGTH_SHORT).show();
                 }
-            }).addOnFailureListener(e ->
-                    Toast.makeText(getContext(), "Error fetching location: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-            );
+            });
         } catch (SecurityException e) {
-            Toast.makeText(getContext(), "Location access error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Location access error.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -281,14 +309,12 @@ public class DetailsFragment extends Fragment {
         Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            if (addresses != null && !addresses.isEmpty()) {
+            if (!addresses.isEmpty()) {
                 String placeName = addresses.get(0).getLocality() + ", " + addresses.get(0).getCountryName();
                 placeOfBirthTxt.setText(placeName);
-            } else {
-                Toast.makeText(getContext(), "Unable to determine location name.", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
-            Toast.makeText(getContext(), "Error fetching location name: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Failed to fetch place name.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -300,13 +326,15 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            profileImageView.setImageURI(imageUri);
+            convertImageToBase64(imageUri);
+        }
         if (requestCode == LOCATION_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             LatLng selectedLocation = data.getParcelableExtra(LocationPickerActivity.SELECTED_LOCATION);
             if (selectedLocation != null) {
-                double latitude = selectedLocation.latitude;
-                double longitude = selectedLocation.longitude;
-                fetchPlaceName(latitude, longitude);
+                fetchPlaceName(selectedLocation.latitude, selectedLocation.longitude);
             }
         }
     }
@@ -319,30 +347,6 @@ public class DetailsFragment extends Fragment {
             } else {
                 Toast.makeText(getContext(), "Location permission denied.", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
-    }
-
-    private void convertImageToBase64(Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-            base64Image = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-            saveImageToFirestore(base64Image);
-        } catch (IOException e) {
-            Toast.makeText(getContext(), "Error processing image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void saveImageToFirestore(String base64Image) {
-        String uid = getUserId();
-        if (uid != null) {
-            db.collection("users").document(uid).update("picture", base64Image);
         }
     }
 }

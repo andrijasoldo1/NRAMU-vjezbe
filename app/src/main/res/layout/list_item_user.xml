@@ -2,42 +2,57 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/user_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="User Name"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+    <!-- Profile Picture -->
+    <ImageView
+        android:id="@+id/profile_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_background"
+        android:background="@drawable/circular_background" />
 
-    <TextView
-        android:id="@+id/user_email"
-        android:layout_width="match_parent"
+    <!-- User Details -->
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Email"
-        android:textSize="14sp"
-        android:paddingTop="2dp" />
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/user_expertise"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Area of Expertise"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        android:paddingTop="2dp" />
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Name"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/user_lawyer_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Odvjetnik"
-        android:textSize="14sp"
-        android:textColor="@android:color/holo_green_dark"
-        android:textStyle="bold"
-        android:paddingTop="2dp"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/user_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="user@example.com"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/user_expertise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Područje stručnosti: N/A"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/user_lawyer_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Odvjetnik"
+            android:textSize="12sp"
+            android:textColor="@android:color/holo_green_dark"
+            android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>
