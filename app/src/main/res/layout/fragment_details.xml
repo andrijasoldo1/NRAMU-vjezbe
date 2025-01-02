@@ -104,11 +104,19 @@
                 android:hint="Unesite mjesto rođenja"
                 android:inputType="text" />
 
+            <!-- Buttons for Location -->
             <Button
                 android:id="@+id/getLocationBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Use Current Location"
+                android:layout_marginTop="8dp" />
+
+            <Button
+                android:id="@+id/selectLocationBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Location on Map"
                 android:layout_marginTop="8dp" />
 
             <EditText

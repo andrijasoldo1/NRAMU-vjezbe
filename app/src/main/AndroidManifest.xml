@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ba.sum.fsre.mymath">
-
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -19,48 +18,44 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyMath">
-
+        <activity
+            android:name=".LocationPickerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false" /> <!-- Metadata for Google Maps API -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD5nc8YeiRtcFvnEsnlsQHdMqlruCsSCBo" /> <!-- Replace YOUR_API_KEY_HERE with your actual API Key -->
         <!-- Messaging Activity -->
         <activity
             android:name=".MessagesActivity"
-            android:exported="false" />
-
-        <!-- PDF Viewer Activity -->
+            android:exported="false" /> <!-- PDF Viewer Activity -->
         <activity
             android:name=".PdfViewerActivity"
             android:exported="false" />
-
         <!-- Chat Activity -->
         <activity
             android:name=".ChatActivity"
-            android:exported="true" />
-
-        <!-- Main Activity -->
+            android:exported="true" /> <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Cases Activity -->
+        </activity> <!-- Cases Activity -->
         <activity
             android:name=".CasesActivity"
-            android:exported="true" />
-
-        <!-- Details Activity -->
+            android:exported="true" /> <!-- Details Activity -->
         <activity
             android:name=".DetailsActivity"
-            android:exported="true" />
-
-        <!-- Game1 Activity -->
+            android:exported="true" /> <!-- Game1 Activity -->
         <activity
             android:name=".Game1Activity"
-            android:exported="true" />
-
-        <!-- Firebase Messaging Service -->
+            android:exported="true" /> <!-- Firebase Messaging Service -->
         <service
             android:name=".services.MyFirebaseMessagingService"
             android:exported="true">
@@ -68,6 +63,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
     </application>
+
 </manifest>

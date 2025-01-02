@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,12 +42,14 @@ import java.util.List;
 import java.util.Locale;
 
 import ba.sum.fsre.mymath.R;
+import ba.sum.fsre.mymath.LocationPickerActivity;
 import ba.sum.fsre.mymath.models.User;
 
 public class DetailsFragment extends Fragment {
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
+    private static final int LOCATION_PICKER_REQUEST_CODE = 200;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -57,7 +60,7 @@ public class DetailsFragment extends Fragment {
 
     private Spinner expertiseSpinner;
     private ImageView profileImageView;
-    private Button requestLawyerStatusButton, selectPictureBtn, saveProfileBtn, getLocationBtn;
+    private Button requestLawyerStatusButton, selectPictureBtn, saveProfileBtn, getLocationBtn, selectLocationBtn;
 
     private String base64Image;
     private List<String> expertiseList;
@@ -108,6 +111,8 @@ public class DetailsFragment extends Fragment {
 
         getLocationBtn.setOnClickListener(view -> checkLocationPermission());
 
+        selectLocationBtn.setOnClickListener(view -> openLocationPicker());
+
         return v;
     }
 
@@ -132,6 +137,7 @@ public class DetailsFragment extends Fragment {
         requestLawyerStatusButton = v.findViewById(R.id.requestLawyerStatusButton);
         saveProfileBtn = v.findViewById(R.id.saveProfileBtn);
         getLocationBtn = v.findViewById(R.id.getLocationBtn);
+        selectLocationBtn = v.findViewById(R.id.selectLocationBtn);
     }
 
     private String getUserId() {
@@ -286,6 +292,25 @@ public class DetailsFragment extends Fragment {
         }
     }
 
+    private void openLocationPicker() {
+        Intent intent = new Intent(getContext(), LocationPickerActivity.class);
+        startActivityForResult(intent, LOCATION_PICKER_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == LOCATION_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            LatLng selectedLocation = data.getParcelableExtra(LocationPickerActivity.SELECTED_LOCATION);
+            if (selectedLocation != null) {
+                double latitude = selectedLocation.latitude;
+                double longitude = selectedLocation.longitude;
+                fetchPlaceName(latitude, longitude);
+            }
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
@@ -300,16 +325,6 @@ public class DetailsFragment extends Fragment {
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
-            profileImageView.setImageURI(imageUri);
-            convertImageToBase64(imageUri);
-        }
     }
 
     private void convertImageToBase64(Uri imageUri) {

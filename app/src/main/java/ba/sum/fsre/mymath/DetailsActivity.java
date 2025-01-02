@@ -59,7 +59,9 @@ public class DetailsActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.nav_user_cases) {
                 selectedFragment = new UserCasesFragment();
             } else if (item.getItemId() == R.id.nav_messages) {
-                selectedFragment = new MessagesFragment(); // Navigate to MessagesFragment
+                selectedFragment = new MessagesFragment();
+            } else if (item.getItemId() == R.id.nav_map) {
+                startActivity(new Intent(this, MapsActivity.class)); // Navigate to MapsActivity
             }
 
             if (selectedFragment != null) {
