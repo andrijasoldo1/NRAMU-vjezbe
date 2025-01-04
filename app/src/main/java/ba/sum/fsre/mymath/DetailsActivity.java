@@ -62,6 +62,8 @@ public class DetailsActivity extends AppCompatActivity {
                 selectedFragment = new MessagesFragment();
             } else if (item.getItemId() == R.id.nav_map) {
                 startActivity(new Intent(this, MapsActivity.class)); // Navigate to MapsActivity
+            } else if (item.getItemId() == R.id.nav_lawyer_reviews) {
+                startActivity(new Intent(this, ReviewActivity.class)); // Navigate to ReviewActivity
             }
 
             if (selectedFragment != null) {

@@ -26,4 +26,8 @@
     <item
         android:id="@+id/nav_map"
         android:title="Map" />
+
+    <item
+        android:id="@+id/nav_lawyer_reviews"
+        android:title="Lawyer Reviews" />
 </menu>

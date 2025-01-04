@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyMath">
         <activity
+            android:name=".ReviewActivity"
+            android:exported="false" />
+        <activity
             android:name=".LocationPickerActivity"
             android:exported="false" />
         <activity
@@ -33,8 +36,7 @@
             android:exported="false" /> <!-- PDF Viewer Activity -->
         <activity
             android:name=".PdfViewerActivity"
-            android:exported="false" />
-        <!-- Chat Activity -->
+            android:exported="false" /> <!-- Chat Activity -->
         <activity
             android:name=".ChatActivity"
             android:exported="true" /> <!-- Main Activity -->
