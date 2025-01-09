@@ -17,23 +17,36 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        debug {
+            storeFile file("C:/Users/Pc/debug.keystore") // Absolute path to your debug.keystore
+            storePassword "andrija1" // Your keystore password
+            keyAlias "androiddebugkey" // Default key alias for debug keystores
+            keyPassword "andrija1" // Your key password
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     buildFeatures {
         viewBinding true
     }
 }
 
 dependencies {
-
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'com.google.firebase:firebase-auth:23.0.0'
@@ -53,6 +66,6 @@ dependencies {
     implementation 'org.maplibre.gl:android-sdk:9.5.0'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
-
-
+    implementation 'com.google.firebase:firebase-auth:21.5.0'
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'
 }
