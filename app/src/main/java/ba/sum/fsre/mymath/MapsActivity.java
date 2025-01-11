@@ -25,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,33 +38,48 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, SensorEventListener {
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private boolean addressDisplayed = false; // Prevent multiple address messages
+    private boolean addressDisplayed = false;
     private LocationCallback locationCallback;
 
-    // Declare the EditText to display Latitude and Longitude
     private EditText latLonEditText;
+
+    private SensorManager sensorManager;
+    private Sensor rotationVectorSensor;
+    private float[] rotationMatrix = new float[9];
+    private float[] orientationAngles = new float[3];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        // Initialize the EditText to display latitude and longitude
         latLonEditText = findViewById(R.id.latLonEditText);
 
-        // Initialize FusedLocationProviderClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
+        }
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
+        if (rotationVectorSensor != null) {
+            sensorManager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_UI);
+        } else {
+            Toast.makeText(this, "Rotation sensor not available!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -71,7 +87,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Check location permissions
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
@@ -82,8 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
 
-        // Add a custom marker
-        LatLng officeLocation = new LatLng(43.8563, 18.4131); // Example coordinates
+        LatLng officeLocation = new LatLng(43.8563, 18.4131);
         mMap.addMarker(new MarkerOptions()
                 .position(officeLocation)
                 .title("Office")
@@ -92,8 +106,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void startRealTimeLocationUpdates() {
         LocationRequest locationRequest = LocationRequest.create()
-                .setInterval(10000) // 10 seconds
-                .setFastestInterval(5000) // 5 seconds
+                .setInterval(10000)
+                .setFastestInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         locationCallback = new LocationCallback() {
@@ -101,18 +115,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 if (locationResult.getLastLocation() != null) {
                     Location location = locationResult.getLastLocation();
+                    Log.d("LocationUpdates", "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
+
                     LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
                     saveLocationToFirestore(location.getLatitude(), location.getLongitude());
 
-                    // Update the EditText with latitude and longitude
                     latLonEditText.setText("Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude());
 
-                    // Reverse geocode only once
                     if (!addressDisplayed) {
                         reverseGeocode(location.getLatitude(), location.getLongitude());
                         addressDisplayed = true;
                     }
+                } else {
+                    Log.d("LocationUpdates", "No location data available");
+                    latLonEditText.setText("Latitude, Longitude");
                 }
             }
         };
@@ -127,7 +144,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userId = FirebaseAuth.getInstance().getCurrentUser() != null
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid()
-                : "anonymous_user"; // Fallback for unauthenticated users
+                : "anonymous_user";
 
         Map<String, Object> locationData = new HashMap<>();
         locationData.put("latitude", latitude);
@@ -154,27 +171,70 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+            SensorManager.getOrientation(rotationMatrix, orientationAngles);
 
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    mMap.setMyLocationEnabled(true);
-                    startRealTimeLocationUpdates();
+            float azimuth = (float) Math.toDegrees(orientationAngles[0]);
+            float pitch = (float) Math.toDegrees(orientationAngles[1]);
+
+            if (Float.isNaN(pitch) || pitch < -90 || pitch > 90) {
+                pitch = 0;
+            }
+
+            float tilt = Math.max(0, 90 - Math.abs(pitch));
+            if (Float.isNaN(tilt) || tilt < 0 || tilt > 90) {
+                tilt = 0;
+            }
+
+            Log.d("SensorData", "Azimuth: " + azimuth + ", Pitch: " + pitch + ", Tilt: " + tilt);
+
+            if (mMap != null) {
+                try {
+                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(
+                            new CameraPosition.Builder()
+                                    .target(mMap.getCameraPosition().target)
+                                    .zoom(mMap.getCameraPosition().zoom)
+                                    .bearing(azimuth)
+                                    .tilt(tilt)
+                                    .build()
+                    ));
+                } catch (IllegalArgumentException e) {
+                    Log.e("MapsActivity", "Invalid tilt value: " + tilt, e);
                 }
-            } else {
-                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     @Override
     protected void onStop() {
         super.onStop();
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (rotationVectorSensor != null) {
+            sensorManager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_UI);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
         }
     }
 }

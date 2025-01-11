@@ -1,12 +1,17 @@
 package ba.sum.fsre.mymath.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,9 +32,20 @@ import ba.sum.fsre.mymath.DetailsActivity;
 import ba.sum.fsre.mymath.R;
 
 public class LoginFragment extends Fragment {
+
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 9001;
+
+    private EditText emailTxt, passwordTxt;
+    private ProgressBar progressBar;
+    private CheckBox rememberMeCheckBox;
+
+    private SharedPreferences sharedPreferences;
+    private static final String PREF_NAME = "loginPrefs";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_REMEMBER = "remember";
 
     public LoginFragment() {
         super();
@@ -44,35 +60,99 @@ public class LoginFragment extends Fragment {
 
         // Configure Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id)) // Web client ID from Firebase
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
 
         // Views
-        EditText emailTxt = v.findViewById(R.id.emailTxt);
-        EditText passwordTxt = v.findViewById(R.id.passwordTxt);
+        emailTxt = v.findViewById(R.id.emailTxt);
+        passwordTxt = v.findViewById(R.id.passwordTxt);
+        progressBar = new ProgressBar(getContext());
+        rememberMeCheckBox = v.findViewById(R.id.rememberMeCheckBox);
+
         Button loginBtn = v.findViewById(R.id.loginBtn);
         Button googleSignInBtn = v.findViewById(R.id.googleSignInBtn);
+        Button forgotPasswordBtn = v.findViewById(R.id.forgotPasswordBtn);
+
+        // Initialize SharedPreferences
+        sharedPreferences = getActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+
+        // Load saved email/password if "Remember Me" was checked
+        loadSavedCredentials();
 
         // Email/Password Login
-        loginBtn.setOnClickListener(view -> {
-            String email = emailTxt.getText().toString();
-            String password = passwordTxt.getText().toString();
-            mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(v.getContext(), "Login successful", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(v.getContext(), DetailsActivity.class));
-                } else {
-                    Toast.makeText(v.getContext(), "Login failed", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
+        loginBtn.setOnClickListener(view -> loginWithEmail());
 
-        // Google Sign-In Button
+        // Google Sign-In
         googleSignInBtn.setOnClickListener(view -> signInWithGoogle());
 
+        // Forgotten Password
+        forgotPasswordBtn.setOnClickListener(view -> resetPassword());
+
         return v;
+    }
+
+    private void loadSavedCredentials() {
+        boolean isRemembered = sharedPreferences.getBoolean(KEY_REMEMBER, false);
+
+        if (isRemembered) {
+            String savedEmail = sharedPreferences.getString(KEY_EMAIL, "");
+            String savedPassword = sharedPreferences.getString(KEY_PASSWORD, "");
+            emailTxt.setText(savedEmail);
+            passwordTxt.setText(savedPassword);
+            rememberMeCheckBox.setChecked(true);
+        }
+    }
+
+    private void saveCredentials(String email, String password, boolean remember) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (remember) {
+            editor.putString(KEY_EMAIL, email);
+            editor.putString(KEY_PASSWORD, password);
+            editor.putBoolean(KEY_REMEMBER, true);
+        } else {
+            editor.clear(); // Clear saved data if "Remember Me" is unchecked
+        }
+        editor.apply();
+    }
+
+    private void loginWithEmail() {
+        String email = emailTxt.getText().toString();
+        String password = passwordTxt.getText().toString();
+
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(getContext(), "Please enter email and password.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            progressBar.setVisibility(View.GONE);
+            if (task.isSuccessful()) {
+                saveCredentials(email, password, rememberMeCheckBox.isChecked());
+                Toast.makeText(getContext(), "Login successful", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getContext(), DetailsActivity.class));
+            } else {
+                Toast.makeText(getContext(), "Login failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void resetPassword() {
+        String email = emailTxt.getText().toString();
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(getContext(), "Please enter your email.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(getContext(), "Password reset email sent.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Failed to send reset email.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void signInWithGoogle() {
@@ -90,7 +170,7 @@ public class LoginFragment extends Fragment {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
-                Toast.makeText(getContext(), "Google Sign-In failed.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }
