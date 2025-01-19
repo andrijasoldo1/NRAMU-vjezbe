@@ -1,33 +1,40 @@
 package ba.sum.fsre.mymath;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
 
+import ba.sum.fsre.mymath.R;
 import ba.sum.fsre.mymath.fragments.LoginFragment;
 import ba.sum.fsre.mymath.fragments.RegisterFragment;
 
 public class MainActivity extends AppCompatActivity {
+    private MaterialButton toggleLeft, toggleRight;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new LoginFragment()).commit();
+
+        // Initialize views
+        toggleLeft = findViewById(R.id.toggleLeft);
+        toggleRight = findViewById(R.id.toggleRight);
+
+        // Initialize Firebase Cloud Messaging
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("MyMath", "Channel human readable title", NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel("MyAppChannel", "Main Channel", NotificationManager.IMPORTANCE_HIGH);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
@@ -35,40 +42,41 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
-                String token = task.getResult();
-                Log.d("FCM", "FCM registration token: " + token);
-            } else {
-                Log.e("FCM", "Failed to get FCM token", task.getException());
+                Log.d("FCM", "FCM Token: " + task.getResult());
             }
         });
 
-        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        // Set initial state
+        setInitialState();
 
-        tabLayout.addTab(tabLayout.newTab().setText("Prijava"));
-        tabLayout.addTab(tabLayout.newTab().setText("Registracija"));
+        // Toggle button listeners
+        toggleLeft.setOnClickListener(v -> switchToRegisterFragment());
+        toggleRight.setOnClickListener(v -> switchToLoginFragment());
+    }
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                Fragment selectedFragment = null;
+    private void setInitialState() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, new LoginFragment())
+                .commit();
+        toggleLeft.setSelected(true);
+        toggleRight.setSelected(false);
+    }
 
-                switch (tab.getPosition()){
-                    case 0:
-                        selectedFragment = new LoginFragment();
-                        break;
-                    case 1:
-                        selectedFragment = new RegisterFragment();
-                        break;
-                }
-                assert selectedFragment != null;
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, selectedFragment).commit();
-            }
+    private void switchToLoginFragment() {
+        toggleLeft.setSelected(true);
+        toggleRight.setSelected(false);
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+                .replace(R.id.fragmentContainer, new LoginFragment())
+                .commit();
+    }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
-        });
+    private void switchToRegisterFragment() {
+        toggleLeft.setSelected(false);
+        toggleRight.setSelected(true);
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragmentContainer, new RegisterFragment())
+                .commit();
     }
 }

@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -23,6 +24,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,28 +36,23 @@ import ba.sum.fsre.mymath.DetailsActivity;
 import ba.sum.fsre.mymath.R;
 
 public class LoginFragment extends Fragment {
-
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 9001;
-
-    private EditText emailTxt, passwordTxt;
-    private ProgressBar progressBar;
+    private TextInputLayout emailLayout, passwordLayout;
+    private TextInputEditText emailInput, passwordInput;
     private CheckBox rememberMeCheckBox;
-
     private SharedPreferences sharedPreferences;
     private static final String PREF_NAME = "loginPrefs";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_REMEMBER = "remember";
 
-    public LoginFragment() {
-        super();
-    }
-
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_login, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -63,34 +62,29 @@ public class LoginFragment extends Fragment {
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
 
-        // Views
-        emailTxt = v.findViewById(R.id.emailTxt);
-        passwordTxt = v.findViewById(R.id.passwordTxt);
-        progressBar = new ProgressBar(getContext());
-        rememberMeCheckBox = v.findViewById(R.id.rememberMeCheckBox);
+        // Initialize views
+        emailLayout = view.findViewById(R.id.emailTxt);
+        passwordLayout = view.findViewById(R.id.passwordTxt);
+        emailInput = (TextInputEditText) emailLayout.getEditText();
+        passwordInput = (TextInputEditText) passwordLayout.getEditText();
+        rememberMeCheckBox = view.findViewById(R.id.rememberMeCheckBox);
 
-        Button loginBtn = v.findViewById(R.id.loginBtn);
-        Button googleSignInBtn = v.findViewById(R.id.googleSignInBtn);
-        Button forgotPasswordBtn = v.findViewById(R.id.forgotPasswordBtn);
+        MaterialButton loginButton = view.findViewById(R.id.loginButton);
+        MaterialButton googleSignInButton = view.findViewById(R.id.googleSignInBtn);
+        MaterialButton forgotPasswordButton = view.findViewById(R.id.forgotPasswordBtn);
 
         // Initialize SharedPreferences
-        sharedPreferences = getActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-
-        // Load saved email/password if "Remember Me" was checked
+        sharedPreferences = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         loadSavedCredentials();
 
-        // Email/Password Login
-        loginBtn.setOnClickListener(view -> loginWithEmail());
+        // Set click listeners
+        loginButton.setOnClickListener(v -> loginUser());
+        googleSignInButton.setOnClickListener(v -> signInWithGoogle());
+        forgotPasswordButton.setOnClickListener(v -> resetPassword());
 
-        // Google Sign-In
-        googleSignInBtn.setOnClickListener(view -> signInWithGoogle());
-
-        // Forgotten Password
-        forgotPasswordBtn.setOnClickListener(view -> resetPassword());
-
-        return v;
+        return view;
     }
 
     private void loadSavedCredentials() {
@@ -99,8 +93,8 @@ public class LoginFragment extends Fragment {
         if (isRemembered) {
             String savedEmail = sharedPreferences.getString(KEY_EMAIL, "");
             String savedPassword = sharedPreferences.getString(KEY_PASSWORD, "");
-            emailTxt.setText(savedEmail);
-            passwordTxt.setText(savedPassword);
+            emailInput.setText(savedEmail);
+            passwordInput.setText(savedPassword);
             rememberMeCheckBox.setChecked(true);
         }
     }
@@ -112,35 +106,40 @@ public class LoginFragment extends Fragment {
             editor.putString(KEY_PASSWORD, password);
             editor.putBoolean(KEY_REMEMBER, true);
         } else {
-            editor.clear(); // Clear saved data if "Remember Me" is unchecked
+            editor.clear();
         }
         editor.apply();
     }
 
-    private void loginWithEmail() {
-        String email = emailTxt.getText().toString();
-        String password = passwordTxt.getText().toString();
-
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(getContext(), "Please enter email and password.", Toast.LENGTH_SHORT).show();
+    private void loginUser() {
+        if (emailInput == null || passwordInput == null) {
+            Toast.makeText(getContext(), "Error loading input fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        progressBar.setVisibility(View.VISIBLE);
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-            progressBar.setVisibility(View.GONE);
-            if (task.isSuccessful()) {
-                saveCredentials(email, password, rememberMeCheckBox.isChecked());
-                Toast.makeText(getContext(), "Login successful", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getContext(), DetailsActivity.class));
-            } else {
-                Toast.makeText(getContext(), "Login failed", Toast.LENGTH_SHORT).show();
-            }
-        });
+        String email = emailInput.getText().toString().trim();
+        String password = passwordInput.getText().toString().trim();
+
+        if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(requireActivity(), task -> {
+                        if (task.isSuccessful()) {
+                            saveCredentials(email, password, rememberMeCheckBox.isChecked());
+                            Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getActivity(), DetailsActivity.class));
+                            requireActivity().finish();
+                        } else {
+                            Toast.makeText(getContext(), "Login failed: " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            Toast.makeText(getContext(), "Please fill in all fields!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void resetPassword() {
-        String email = emailTxt.getText().toString();
+        String email = emailInput.getText().toString();
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(getContext(), "Please enter your email.", Toast.LENGTH_SHORT).show();
             return;

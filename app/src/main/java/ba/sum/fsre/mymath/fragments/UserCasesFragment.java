@@ -39,7 +39,9 @@ public class UserCasesFragment extends Fragment {
     private List<Case> userCases;
     private CaseAdapter adapter;
 
-    private EditText caseNameInput, caseDescriptionInput, casePriceInput, caseAnonymousInput;
+    private EditText caseNameInput, caseDescriptionInput, casePriceInput;
+
+    private CheckBox caseAnonymousInput;  // instead of EditText
     private Spinner typeOfCaseSpinner, statusSpinner;
     private Button saveCaseButton, clearFormButton, selectDocumentButton, toggleFormButton;
 
@@ -155,7 +157,7 @@ public class UserCasesFragment extends Fragment {
         String priceText = casePriceInput.getText().toString().trim();
         String typeOfCase = typeOfCaseSpinner.getSelectedItem().toString();
         String status = statusSpinner.getSelectedItem().toString();
-        boolean isAnonymous = Boolean.parseBoolean(caseAnonymousInput.getText().toString().trim());
+        boolean isAnonymous = caseAnonymousInput.isChecked();
 
         if (name.isEmpty() || priceText.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill out all required fields", Toast.LENGTH_SHORT).show();
@@ -198,7 +200,7 @@ public class UserCasesFragment extends Fragment {
         casePriceInput.setText("");
         typeOfCaseSpinner.setSelection(0);
         statusSpinner.setSelection(0);
-        caseAnonymousInput.setText("");
+        caseAnonymousInput.setChecked(false);
         attachedDocumentsBase64.clear();
         updateAttachedDocsListView();
         currentEditingCase = null;
@@ -210,7 +212,7 @@ public class UserCasesFragment extends Fragment {
         caseNameInput.setText(existingCase.getName());
         caseDescriptionInput.setText(existingCase.getDescription());
         casePriceInput.setText(String.valueOf(existingCase.getPrice()));
-        caseAnonymousInput.setText(String.valueOf(existingCase.isAnonymous()));
+        caseAnonymousInput.setChecked(existingCase.isAnonymous());
 
         if (expertiseList.contains(existingCase.getTypeOfCase())) {
             typeOfCaseSpinner.setSelection(expertiseList.indexOf(existingCase.getTypeOfCase()));
