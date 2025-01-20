@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyMath">
         <activity
+            android:name=".ChatbotActivity"
+            android:exported="false" />
+        <activity
             android:name=".StartActivity"
             android:exported="false" />
         <activity
@@ -54,13 +57,11 @@
         </activity> <!-- Cases Activity -->
         <activity
             android:name=".CasesActivity"
-            android:exported="true" /> <!-- Details Activity -->
+            android:exported="true" />
         <activity
             android:name=".DetailsActivity"
-            android:exported="true" /> <!-- Game1 Activity -->
-        <activity
-            android:name=".Game1Activity"
-            android:exported="true" /> <!-- Firebase Messaging Service -->
+            android:exported="true" />
+
         <service
             android:name=".services.MyFirebaseMessagingService"
             android:exported="true">

@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 
 import com.google.android.material.navigation.NavigationView;
@@ -60,6 +59,9 @@ public class DetailsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MapsActivity.class));
             } else if (item.getItemId() == R.id.nav_lawyer_reviews) {
                 startActivity(new Intent(this, ReviewActivity.class));
+            } else if (item.getItemId() == R.id.nav_chatbot) {
+                // Launch ChatbotActivity
+                startActivity(new Intent(this, ChatbotActivity.class));
             }
 
             if (selectedFragment != null) {
@@ -72,6 +74,7 @@ public class DetailsActivity extends AppCompatActivity {
             return true;
         });
 
+        // Default fragment on activity start
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new DetailsFragment())
                 .commit();
