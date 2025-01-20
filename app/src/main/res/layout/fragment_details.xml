@@ -1,173 +1,344 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FAFAFD">
+
+    <!-- Header Background -->
+
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="24dp">
 
-            <!-- Profile Image -->
-            <ImageView
-                android:id="@+id/profileImageView"
+            <!-- Profile Image Section -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_launcher_foreground"
-                android:layout_marginBottom="16dp" />
+                app:cardCornerRadius="75dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
 
-            <Button
+                <ImageView
+                    android:id="@+id/profileImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_launcher_foreground" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/selectPictureBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Select Picture" />
+                android:layout_height="52dp"
+                android:background="@drawable/button_outline_background"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Odaberi sliku"
+                android:textColor="#356899"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp" />
 
-            <!-- User Info -->
+            <!-- Personal Information Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Osobni podaci"
+                android:textColor="#356899"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Basic Info -->
             <EditText
                 android:id="@+id/firstNameTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite Vaše ime"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/lastNameTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite Vaše prezime"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/eMailTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite Vaš email"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp" />
 
-            <!-- Spinner for Expertise -->
+            <!-- Expertise Section -->
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Odaberite Područje Stručnosti"
-                android:textStyle="bold"
-                android:layout_marginTop="8dp" />
+                android:text="Područje Stručnosti"
+                android:textColor="#356899"
+                android:textSize="16sp"
+                android:fontFamily="@font/poppins_medium"
+                android:layout_marginBottom="8dp" />
 
             <Spinner
                 android:id="@+id/expertiseSpinner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:paddingStart="16dp"
+                android:layout_marginBottom="24dp" />
 
-            <!-- Other Fields -->
+            <!-- Additional Information -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dodatni podaci"
+                android:textColor="#356899"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginBottom="16dp" />
+
             <EditText
                 android:id="@+id/dateOfBirthTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite datum rođenja"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/telephoneTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite Vaš kontakt telefon"
-                android:inputType="phone" />
+                android:inputType="phone"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/genderTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite Vaš spol"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Location Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lokacija"
+                android:textColor="#356899"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/addressTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite Vašu adresu"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/placeOfBirthTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite mjesto rođenja"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Buttons for Location -->
-            <Button
-                android:id="@+id/getLocationBtn"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Use Current Location"
-                android:layout_marginTop="8dp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
 
-            <Button
-                android:id="@+id/selectLocationBtn"
-                android:layout_width="match_parent"
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/getLocationBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/button_outline_background"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Trenutna lokacija"
+                    android:textColor="#356899"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/selectLocationBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/button_outline_background"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Odaberi na karti"
+                    android:textColor="#356899"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Education Section -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select Location on Map"
-                android:layout_marginTop="8dp" />
+                android:text="Obrazovanje"
+                android:textColor="#356899"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/universityTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Unesite fakultet"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
-            <EditText
-                android:id="@+id/yearStartTxt"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Godina početka fakulteta"
-                android:inputType="number" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
-            <EditText
-                android:id="@+id/yearFinishTxt"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Godina završetka fakulteta"
-                android:inputType="number" />
+                <EditText
+                    android:id="@+id/yearStartTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/edit_text_border"
+                    android:fontFamily="@font/poppins_medium"
+                    android:hint="Godina početka"
+                    android:inputType="number"
+                    android:paddingStart="16dp"
+                    android:textColor="#AFB0B6"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/yearFinishTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/edit_text_border"
+                    android:fontFamily="@font/poppins_medium"
+                    android:hint="Godina završetka"
+                    android:inputType="number"
+                    android:paddingStart="16dp"
+                    android:textColor="#AFB0B6"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/roleTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="Uloga"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
             <EditText
                 android:id="@+id/cvTxt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
+                android:background="@drawable/edit_text_border"
+                android:fontFamily="@font/poppins_medium"
                 android:hint="CV"
-                android:inputType="textUri" />
+                android:inputType="textUri"
+                android:paddingStart="16dp"
+                android:textColor="#AFB0B6"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp" />
 
-            <!-- Save and Request Buttons -->
-            <Button
+            <!-- Action Buttons -->
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/saveProfileBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
+                android:background="@drawable/button_background"
+                android:fontFamily="@font/poppins_medium"
                 android:text="Spasi podatke"
-                android:layout_marginTop="16dp" />
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/requestLawyerStatusButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Request Lawyer Status"
-                android:layout_marginTop="16dp" />
+                android:layout_height="56dp"
+                android:background="@drawable/button_outline_background"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Zatraži status odvjetnika"
+                android:textColor="#356899"
+                android:textSize="16sp" />
+
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

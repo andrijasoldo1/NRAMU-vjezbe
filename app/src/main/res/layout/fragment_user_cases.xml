@@ -1,32 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FAFAFD">
-
-    <!-- Header Background -->
-    <View
-        android:id="@+id/headerBackground"
-        android:layout_width="0dp"
-        android:layout_height="85dp"
-        android:background="@drawable/navbar_gradient"
-        android:elevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Logo and Menu Section -->
-    <ImageView
-        android:id="@+id/LogoWhite"
-        android:layout_width="60dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="6dp"
-        android:elevation="5dp"
-        android:src="@drawable/logo_white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/headerBackground" />
 
     <!-- Toggle Form Button -->
     <androidx.appcompat.widget.AppCompatButton
@@ -40,10 +18,10 @@
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerBackground" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Form Section -->
-    <ScrollView
+    <!-- NestedScrollView Section -->
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/formScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -189,26 +167,19 @@
                 android:textColor="#356899"
                 android:textSize="16sp" />
 
-
-
+            <!-- ListView -->
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/list_background"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="1dp" />
         </LinearLayout>
-    </ScrollView>
-    <ListView
-        android:id="@+id/listView"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/list_background"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    </androidx.core.widget.NestedScrollView>
 
-
-
-    <!-- List of Cases -->
+    <!-- Navbar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/navbar"
         android:layout_width="match_parent"
@@ -226,19 +197,16 @@
             android:text="copyright 2025"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Social Icons -->
         <LinearLayout
             android:id="@+id/socialIcons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:orientation="horizontal"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -247,14 +215,10 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp" />
-            <!--  android:src="@drawable/ic_facebook" -->
-
-
             <ImageView
                 android:id="@+id/instagramIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp" />
-            <!--   android:src="@drawable/ic_instagram" -->
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

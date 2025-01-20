@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import androidx.core.widget.NestedScrollView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -89,6 +91,9 @@ public class UserCasesFragment extends Fragment {
 
         return view;
     }
+
+
+
 
     private void loadExpertiseOptions() {
         db.collection("expertises").get()
@@ -229,11 +234,12 @@ public class UserCasesFragment extends Fragment {
     }
 
     private void toggleFormVisibility() {
-        ScrollView formScrollView = requireView().findViewById(R.id.formScrollView);
+        androidx.core.widget.NestedScrollView formScrollView = requireView().findViewById(R.id.formScrollView);
         formScrollView.setVisibility(isFormVisible ? View.GONE : View.VISIBLE);
         toggleFormButton.setText(isFormVisible ? "Show Form" : "Hide Form");
         isFormVisible = !isFormVisible;
     }
+
 
     private void selectDocument() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

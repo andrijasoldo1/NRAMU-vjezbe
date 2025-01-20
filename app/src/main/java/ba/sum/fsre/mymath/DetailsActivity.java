@@ -1,13 +1,13 @@
 package ba.sum.fsre.mymath;
 
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -24,26 +24,22 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Disable the default ActionBar provided by the theme
-        supportRequestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
-
         setContentView(R.layout.details_activity);
 
-        // Set up the custom Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        // Initialize DrawerLayout
+        // Toolbar setup
         drawerLayout = findViewById(R.id.drawer_layout);
+        ImageButton menuButton = findViewById(R.id.menuButton);
 
-        // Configure the Drawer Toggle
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        // Handle button clicks to toggle drawer
+        menuButton.setOnClickListener(v -> {
+            if (drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.END)) {
+                drawerLayout.closeDrawer(androidx.core.view.GravityCompat.END);
+            } else {
+                drawerLayout.openDrawer(androidx.core.view.GravityCompat.END);
+            }
+        });
 
-        // Handle navigation item clicks
+        // Handle NavigationView item selection
         NavigationView navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(item -> {
             Fragment selectedFragment = null;
@@ -61,9 +57,9 @@ public class DetailsActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.nav_messages) {
                 selectedFragment = new MessagesFragment();
             } else if (item.getItemId() == R.id.nav_map) {
-                startActivity(new Intent(this, MapsActivity.class)); // Navigate to MapsActivity
+                startActivity(new Intent(this, MapsActivity.class));
             } else if (item.getItemId() == R.id.nav_lawyer_reviews) {
-                startActivity(new Intent(this, ReviewActivity.class)); // Navigate to ReviewActivity
+                startActivity(new Intent(this, ReviewActivity.class));
             }
 
             if (selectedFragment != null) {
@@ -72,11 +68,10 @@ public class DetailsActivity extends AppCompatActivity {
                         .commit();
             }
 
-            drawerLayout.closeDrawers();
+            drawerLayout.closeDrawer(androidx.core.view.GravityCompat.END);
             return true;
         });
 
-        // Set default fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new DetailsFragment())
                 .commit();

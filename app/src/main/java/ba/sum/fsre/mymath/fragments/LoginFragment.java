@@ -8,10 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,8 +29,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import ba.sum.fsre.mymath.DetailsActivity;
 import ba.sum.fsre.mymath.R;
+import ba.sum.fsre.mymath.StartActivity;
 
 public class LoginFragment extends Fragment {
     private FirebaseAuth mAuth;
@@ -126,7 +123,7 @@ public class LoginFragment extends Fragment {
                         if (task.isSuccessful()) {
                             saveCredentials(email, password, rememberMeCheckBox.isChecked());
                             Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getActivity(), DetailsActivity.class));
+                            startActivity(new Intent(getActivity(), StartActivity.class));
                             requireActivity().finish();
                         } else {
                             Toast.makeText(getContext(), "Login failed: " + task.getException().getMessage(),
@@ -180,7 +177,7 @@ public class LoginFragment extends Fragment {
             if (task.isSuccessful()) {
                 FirebaseUser user = mAuth.getCurrentUser();
                 Toast.makeText(getContext(), "Welcome " + (user != null ? user.getDisplayName() : ""), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getContext(), DetailsActivity.class));
+                startActivity(new Intent(getContext(), StartActivity.class));
             } else {
                 Toast.makeText(getContext(), "Authentication Failed.", Toast.LENGTH_SHORT).show();
             }
