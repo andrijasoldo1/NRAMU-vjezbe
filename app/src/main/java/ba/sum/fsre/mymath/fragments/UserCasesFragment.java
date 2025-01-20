@@ -48,6 +48,8 @@ public class UserCasesFragment extends Fragment {
     private Button saveCaseButton, clearFormButton, selectDocumentButton, toggleFormButton;
 
     private boolean isFormVisible = true;
+
+    private boolean isListVisible = false;
     private Case currentEditingCase = null;
     private List<String> attachedDocumentsBase64;
     private List<String> expertiseList;
@@ -60,7 +62,7 @@ public class UserCasesFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         listView = view.findViewById(R.id.listView);
-
+        listView.setVisibility(View.GONE);
         // Initialize UI elements
         toggleFormButton = view.findViewById(R.id.toggleFormButton);
         caseNameInput = view.findViewById(R.id.caseNameInput);
@@ -235,9 +237,12 @@ public class UserCasesFragment extends Fragment {
 
     private void toggleFormVisibility() {
         androidx.core.widget.NestedScrollView formScrollView = requireView().findViewById(R.id.formScrollView);
+        listView = requireView().findViewById(R.id.listView);
         formScrollView.setVisibility(isFormVisible ? View.GONE : View.VISIBLE);
+        listView.setVisibility(isListVisible ? View.GONE : View.VISIBLE);
         toggleFormButton.setText(isFormVisible ? "Show Form" : "Hide Form");
         isFormVisible = !isFormVisible;
+        isListVisible = !isListVisible;
     }
 
 
