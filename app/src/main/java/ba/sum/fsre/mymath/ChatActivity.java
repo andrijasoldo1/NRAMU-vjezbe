@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +27,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private EditText messageInput;
-    private Button sendButton;
+    private ImageButton sendButton;
 
     private FirebaseFirestore db;
     private CollectionReference messagesCollection;

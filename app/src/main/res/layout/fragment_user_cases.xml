@@ -45,7 +45,7 @@
                 android:hint="Case Name"
                 android:inputType="text"
                 android:paddingStart="16dp"
-                android:textColor="#AFB0B6"
+
                 android:textSize="14sp" />
 
             <!-- Description Input -->
@@ -60,7 +60,7 @@
                 android:hint="Description"
                 android:inputType="textMultiLine"
                 android:padding="16dp"
-                android:textColor="#AFB0B6"
+
                 android:textSize="14sp" />
 
             <!-- Price Input -->
@@ -74,7 +74,7 @@
                 android:hint="Price"
                 android:inputType="numberDecimal"
                 android:paddingStart="16dp"
-                android:textColor="#AFB0B6"
+
                 android:textSize="14sp" />
 
             <!-- Type of Case Section -->
@@ -121,7 +121,7 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="@font/poppins_medium"
                 android:text="Publish case anonymously"
-                android:textColor="#AFB0B6"
+
                 android:textSize="14sp" />
 
             <!-- Attach Document Button -->

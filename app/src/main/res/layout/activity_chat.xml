@@ -1,34 +1,61 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/white">
 
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messagesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
-        android:clipToPadding="false" />
+        android:padding="8dp" />
 
+    <!-- Message Input Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="20dp">
 
+        <!-- Attach Button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/attachButton"
+            android:layout_width="46dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@android:color/white"
+            android:elevation="4dp"
+            android:src="@drawable/ic_attach"
+            android:contentDescription="Attach File"
+            android:tint="#356899" />
+
+        <!-- Message Input -->
         <EditText
             android:id="@+id/messageInput"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
-            android:hint="Enter message"
-            android:padding="8dp" />
+            android:background="@drawable/edit_text_border"
+            android:hint="Send message"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
 
-        <Button
+            android:textSize="15sp"
+            android:fontFamily="@font/poppins_regular" />
+
+        <!-- Send Button -->
+        <ImageButton
             android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send" />
+            android:layout_width="54dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+
+            android:src="@drawable/ic_send"
+            android:contentDescription="Send Message"
+             />
     </LinearLayout>
+
 </LinearLayout>
