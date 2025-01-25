@@ -10,6 +10,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -29,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import ba.sum.fsre.mymath.R;
+import ba.sum.fsre.mymath.adapters.AllCaseAdapter;
+import ba.sum.fsre.mymath.adapters.BaseCaseAdapter;
 import ba.sum.fsre.mymath.adapters.CaseAdapter;
 import ba.sum.fsre.mymath.models.Case;
 
@@ -36,6 +40,8 @@ public class AllCasesFragment extends Fragment {
 
     private FirebaseFirestore db;
     private ListView listView;
+
+    private LinearLayout filtersLayout;
     private EditText searchBar;
     private Spinner sortSpinner;
     private Spinner statusSpinner;
@@ -43,7 +49,7 @@ public class AllCasesFragment extends Fragment {
     private List<Case> allCases;
     private List<Case> filteredCases;
     private Map<String, String> userEmails; // Maps userId to eMail
-    private CaseAdapter adapter;
+    private BaseCaseAdapter adapter;
 
     @Nullable
     @Override
@@ -54,34 +60,25 @@ public class AllCasesFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         // Initialize Views
-        listView = view.findViewById(R.id.listView);
+        listView = view.findViewById(R.id.list_item_all_cases);
         searchBar = view.findViewById(R.id.search_bar);
         sortSpinner = view.findViewById(R.id.sort_spinner);
         statusSpinner = view.findViewById(R.id.status_spinner);
         expertiseSpinner = view.findViewById(R.id.expertise_spinner);
+        filtersLayout = view.findViewById(R.id.filters_layout);
 
+        // Setup Filters Toggle Button
+        ImageButton filterButton = view.findViewById(R.id.filter_button);
+        filterButton.setOnClickListener(v -> toggleFilters());
         // Initialize Case Lists and Adapter
         allCases = new ArrayList<>();
         filteredCases = new ArrayList<>();
         userEmails = new HashMap<>();
 
-        adapter = new CaseAdapter(requireContext(), filteredCases, null) {
-            @NonNull
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View itemView = super.getView(position, convertView, parent);
-
-                // Hide Edit and Delete Buttons
-                Button editButton = itemView.findViewById(R.id.edit_button);
-                Button deleteButton = itemView.findViewById(R.id.delete_button);
-                if (editButton != null) editButton.setVisibility(View.GONE);
-                if (deleteButton != null) deleteButton.setVisibility(View.GONE);
-
-                return itemView;
-            }
-        };
-
+        adapter = new AllCaseAdapter(requireContext(), filteredCases);
         listView.setAdapter(adapter);
+
+
 
         // Load All Non-Anonymous Cases
         loadAllCases();
@@ -106,6 +103,24 @@ public class AllCasesFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void toggleFilters() {
+        if (filtersLayout.getVisibility() == View.GONE) {
+            // Show filters with animation
+            filtersLayout.setVisibility(View.VISIBLE);
+            filtersLayout.animate()
+                    .alpha(1.0f)
+                    .setDuration(300)
+                    .start();
+        } else {
+            // Hide filters with animation
+            filtersLayout.animate()
+                    .alpha(0.0f)
+                    .setDuration(200)
+                    .withEndAction(() -> filtersLayout.setVisibility(View.GONE))
+                    .start();
+        }
     }
 
     private void loadAllCases() {

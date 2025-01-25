@@ -17,14 +17,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        debug {
-            storeFile = file("C:/Users/Pc/debug.keystore")
-            storePassword = "andrija1"
-            keyAlias = "androiddebugkey"
-            keyPassword = "andrija1"
-        }
-    }
+
 
     buildTypes {
         debug {

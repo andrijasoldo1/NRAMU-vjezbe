@@ -20,7 +20,7 @@ import java.util.List;
 import ba.sum.fsre.mymath.R;
 import ba.sum.fsre.mymath.models.Case;
 
-public class CaseAdapter extends ArrayAdapter<Case> {
+public class CaseAdapter extends BaseCaseAdapter {
 
     public interface EditCaseCallback {
         void onEdit(Case caseToEdit);
