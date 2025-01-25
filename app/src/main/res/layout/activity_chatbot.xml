@@ -3,7 +3,33 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light">
+
+    <!-- Switch Conversations Button -->
+    <Button
+        android:id="@+id/switchConversationsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:text="Switch Conversations"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Conversation Title -->
+    <TextView
+        android:id="@+id/conversationTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Conversation Title"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchConversationsButton" />
 
     <!-- Scrollable Chat Display -->
     <ScrollView
@@ -11,7 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="16dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/conversationTitle"
         app:layout_constraintBottom_toTopOf="@+id/userInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -23,7 +49,9 @@
             android:background="@android:color/white"
             android:padding="8dp"
             android:textSize="16sp"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:scrollbars="vertical"
+            android:lineSpacingExtra="4dp" />
     </ScrollView>
 
     <!-- User Input Field -->
@@ -36,6 +64,9 @@
         android:hint="Type your message"
         android:padding="8dp"
         android:background="@android:color/white"
+        android:inputType="textMultiLine"
+        android:maxLines="5"
+        android:scrollbars="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/sendButton"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -46,7 +77,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:padding="8dp"
         android:text="Send"
+        android:contentDescription="Send button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 

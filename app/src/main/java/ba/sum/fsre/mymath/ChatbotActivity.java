@@ -1,5 +1,6 @@
 package ba.sum.fsre.mymath;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -15,6 +16,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -23,26 +33,19 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 public class ChatbotActivity extends AppCompatActivity {
 
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "tralalalalalalalalalalalalalalalalalalal"; // Replace with your actual API key
+    private static final String API_KEY = "tralalalalalalalalaalalalalalalla"; // Replace with your API key
 
     private EditText userInput;
-    private TextView chatDisplay;
-    private Button sendButton;
+    private TextView chatDisplay, conversationTitle;
+    private Button sendButton, switchConversationsButton;
     private ScrollView chatScrollView;
     private OkHttpClient httpClient;
     private FirebaseFirestore firestore;
     private String currentUserId;
+    private String currentConversationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +55,9 @@ public class ChatbotActivity extends AppCompatActivity {
         // Initialize UI elements
         userInput = findViewById(R.id.userInput);
         chatDisplay = findViewById(R.id.chatDisplay);
+        conversationTitle = findViewById(R.id.conversationTitle);
         sendButton = findViewById(R.id.sendButton);
+        switchConversationsButton = findViewById(R.id.switchConversationsButton);
         chatScrollView = findViewById(R.id.chatScrollView);
 
         // Initialize HTTP client and Firestore
@@ -64,14 +69,16 @@ public class ChatbotActivity extends AppCompatActivity {
                 ? FirebaseAuth.getInstance().getCurrentUser().getUid()
                 : null;
 
-        if (currentUserId != null) {
-            loadConversation(); // Load user-specific conversation
-        } else {
+        if (currentUserId == null) {
             Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
-        // Set button click listener
+        // Initialize conversation
+        selectConversation();
+
+        // Set button click listeners
         sendButton.setOnClickListener(v -> {
             String input = userInput.getText().toString().trim();
             if (!input.isEmpty()) {
@@ -80,24 +87,137 @@ public class ChatbotActivity extends AppCompatActivity {
                 userInput.setText("");
             }
         });
+
+        switchConversationsButton.setOnClickListener(v -> selectConversation());
+    }
+
+    private void selectConversation() {
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("conversations")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    ArrayList<String> conversationIds = new ArrayList<>();
+                    ArrayList<String> conversationNames = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String conversationId = document.getId();
+                        String name = document.contains("name") ? document.getString("name") : "Untitled Conversation";
+
+                        // Add conversation ID and name to the lists
+                        conversationIds.add(conversationId);
+                        conversationNames.add(name);
+
+                        // Fix missing name field
+                        if (!document.contains("name")) {
+                            document.getReference().update("name", name)
+                                    .addOnSuccessListener(aVoid -> Log.d("Firestore", "Added default name to conversation"))
+                                    .addOnFailureListener(e -> Log.e("Firestore", "Error adding default name", e));
+                        }
+                    }
+
+                    // Add option to create a new conversation
+                    conversationNames.add("New Conversation");
+                    conversationIds.add(null);
+
+                    // Show selection dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Select Conversation");
+                    builder.setItems(conversationNames.toArray(new String[0]), (dialog, which) -> {
+                        if (conversationIds.get(which) == null) {
+                            promptForConversationName(); // Start a new conversation with a name
+                        } else {
+                            currentConversationId = conversationIds.get(which);
+                            conversationTitle.setText(conversationNames.get(which)); // Update title
+                            loadConversation(currentConversationId); // Load messages
+                        }
+                    });
+                    builder.show();
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Error loading conversations", e));
+    }
+
+    private void promptForConversationName() {
+        // Show dialog to prompt the user for a conversation name
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Name Your Conversation");
+
+        final EditText input = new EditText(this);
+        input.setHint("Enter conversation name");
+        builder.setView(input);
+
+        builder.setPositiveButton("Create", (dialog, which) -> {
+            String conversationName = input.getText().toString().trim();
+            if (conversationName.isEmpty()) {
+                conversationName = "Untitled Conversation";
+            }
+            createNewConversation(conversationName);
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void createNewConversation(String name) {
+        Map<String, Object> conversation = new HashMap<>();
+        conversation.put("name", name);
+        conversation.put("timestamp", System.currentTimeMillis());
+
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("conversations")
+                .add(conversation)
+                .addOnSuccessListener(documentReference -> {
+                    currentConversationId = documentReference.getId();
+                    conversationTitle.setText(name);
+                    chatDisplay.setText(""); // Clear chat display
+                    Toast.makeText(this, "New conversation \"" + name + "\" created!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Error creating conversation", e));
+    }
+
+    private void loadConversation(String conversationId) {
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("conversations")
+                .document(conversationId)
+                .collection("messages")
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    chatDisplay.setText(""); // Clear the chat display
+
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        chatDisplay.append("This conversation has no messages yet.\n");
+                        return;
+                    }
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String sender = document.contains("sender") ? document.getString("sender") : "Unknown";
+                        String message = document.contains("message") ? document.getString("message") : "(No message content)";
+
+                        chatDisplay.append(sender + ": " + message + "\n");
+                    }
+
+                    scrollToBottom();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error loading conversation", e);
+                    chatDisplay.append("Failed to load conversation.\n");
+                });
     }
 
     private void sendMessage(String message) {
         chatDisplay.append("You: " + message + "\n");
         scrollToBottom();
 
-        // Create JSON payload
-        JSONObject payload = new JSONObject();
+        JSONArray messagesArray = new JSONArray();
         try {
-            payload.put("model", "ft:gpt-4o-2024-08-06:toplaw:toplaw:ArEPEMdK"); // Your fine-tuned model name
-
-            JSONArray messagesArray = new JSONArray();
-
             // Add system-level instruction
             JSONObject systemMessage = new JSONObject();
             systemMessage.put("role", "system");
-            systemMessage.put("content", "You are a legal assistant specializing in answering law-related questions. " +
-                    "Do not answer any questions outside of the legal domain.");
+            systemMessage.put("content", "You are a legal assistant specializing in answering law-related questions specific to Bosnia and Herzegovina.");
             messagesArray.put(systemMessage);
 
             // Add user message
@@ -105,7 +225,19 @@ public class ChatbotActivity extends AppCompatActivity {
             userMessage.put("role", "user");
             userMessage.put("content", message);
             messagesArray.put(userMessage);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            chatDisplay.append("Error creating JSON request: " + e.getMessage() + "\n");
+            return;
+        }
 
+        sendToAPI(messagesArray);
+    }
+
+    private void sendToAPI(JSONArray messagesArray) {
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put("model", "ft:gpt-4o-2024-08-06:toplaw:toplaw:AtYaitAD");
             payload.put("messages", messagesArray);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -114,17 +246,14 @@ public class ChatbotActivity extends AppCompatActivity {
             return;
         }
 
-        // Create request body
         RequestBody body = RequestBody.create(payload.toString(), MediaType.get("application/json; charset=utf-8"));
 
-        // Build request
         Request request = new Request.Builder()
                 .url(API_URL)
                 .header("Authorization", "Bearer " + API_KEY)
                 .post(body)
                 .build();
 
-        // Execute HTTP request
         httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -136,31 +265,31 @@ public class ChatbotActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String responseText = response.body().string();
-                    try {
-                        JSONObject jsonResponse = new JSONObject(responseText);
-
-                        // Extract bot message
-                        String botMessage = jsonResponse.getJSONArray("choices")
-                                .getJSONObject(0)
-                                .getJSONObject("message")
-                                .getString("content");
-
-                        runOnUiThread(() -> {
-                            chatDisplay.append("Bot: " + botMessage + "\n");
-                            addMessageToFirestore("bot", botMessage); // Save bot response
-                            scrollToBottom();
-                        });
-                    } catch (JSONException e) {
-                        runOnUiThread(() -> {
-                            chatDisplay.append("Error parsing response: " + e.getMessage() + "\n");
-                            scrollToBottom();
-                        });
-                    }
-                } else {
+                if (!response.isSuccessful()) {
                     runOnUiThread(() -> {
                         chatDisplay.append("Error: " + response.message() + "\n");
+                        scrollToBottom();
+                    });
+                    return;
+                }
+
+                String responseText = response.body().string();
+                try {
+                    JSONObject jsonResponse = new JSONObject(responseText);
+
+                    String botMessage = jsonResponse.getJSONArray("choices")
+                            .getJSONObject(0)
+                            .getJSONObject("message")
+                            .getString("content");
+
+                    runOnUiThread(() -> {
+                        chatDisplay.append("Bot: " + botMessage + "\n");
+                        addMessageToFirestore("bot", botMessage);
+                        scrollToBottom();
+                    });
+                } catch (JSONException e) {
+                    runOnUiThread(() -> {
+                        chatDisplay.append("Error parsing response: " + e.getMessage() + "\n");
                         scrollToBottom();
                     });
                 }
@@ -177,26 +306,11 @@ public class ChatbotActivity extends AppCompatActivity {
         firestore.collection("users")
                 .document(currentUserId)
                 .collection("conversations")
+                .document(currentConversationId)
+                .collection("messages")
                 .add(chatMessage)
                 .addOnSuccessListener(documentReference -> Log.d("Firestore", "Message added"))
                 .addOnFailureListener(e -> Log.e("Firestore", "Error adding message", e));
-    }
-
-    private void loadConversation() {
-        firestore.collection("users")
-                .document(currentUserId)
-                .collection("conversations")
-                .orderBy("timestamp", Query.Direction.ASCENDING)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String sender = document.getString("sender");
-                        String message = document.getString("message");
-                        chatDisplay.append(sender + ": " + message + "\n");
-                    }
-                    scrollToBottom();
-                })
-                .addOnFailureListener(e -> Log.e("Firestore", "Error loading conversation", e));
     }
 
     private void scrollToBottom() {
