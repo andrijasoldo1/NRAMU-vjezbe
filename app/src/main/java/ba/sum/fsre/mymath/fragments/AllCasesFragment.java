@@ -78,6 +78,13 @@ public class AllCasesFragment extends Fragment {
         adapter = new AllCaseAdapter(requireContext(), filteredCases);
         listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener((parent, itemView, position, id) -> {
+            Case selectedCase = filteredCases.get(position);
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, SingleCaseFragment.newInstance(selectedCase.getId()))
+                    .addToBackStack(null)
+                    .commit();
+        });
 
 
         // Load All Non-Anonymous Cases
@@ -104,6 +111,8 @@ public class AllCasesFragment extends Fragment {
 
         return view;
     }
+
+
 
     private void toggleFilters() {
         if (filtersLayout.getVisibility() == View.GONE) {

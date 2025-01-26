@@ -13,5 +13,7 @@
     <string name="loading_cases">Loading cases...</string>
     <string name="error_loading_cases">Error loading cases. Please try again.</string>
     <string name="default_web_client_id">204243413508-h6staorueijvuupprmvvcgvu8j41lltj.apps.googleusercontent.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

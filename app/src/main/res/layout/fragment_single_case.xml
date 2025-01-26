@@ -1,0 +1,120 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F0F4F8">
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:background="@null"
+        android:src="@drawable/ic_send" />
+
+    <!-- Price -->
+    <TextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="34dp"
+        android:layout_marginTop="34dp"
+        android:layout_alignParentEnd="true"
+        android:text="$180,00"
+        android:textColor="#356899"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Case Title -->
+    <TextView
+        android:id="@+id/case_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/back_button"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="CASE TITLE"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <!-- Case Expertise -->
+    <TextView
+        android:id="@+id/case_expertise"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/case_title"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Case Field of Expertise"
+        android:textColor="#356899"
+        android:textSize="16sp" />
+
+
+    <!-- Name -->
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/case_expertise"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="32dp"
+        android:text="Marko Markić"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Inline TextView -->
+    <TextView
+        android:id="@+id/case_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/name"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="32dp"
+        android:text="Mostar, BiH"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/desc_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/case_status"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="24dp"
+        android:text="Opis:"
+        android:textColor="#356899"
+        android:textSize="24sp" />
+
+
+    <!-- Description -->
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/desc_text"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:padding="16dp"
+        android:text="We are the teams who create all of Facebook's products used by billions of people around the world. Want to build new features and improve existing products like Messenger, Video, Groups, News Feed, Search and more?"
+        android:textColor="#000000"
+        android:textSize="14sp" />
+
+    <!-- Next Button -->
+    <Button
+        android:id="@+id/next_button"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="16dp"
+        android:background="#356899"
+        android:text="Next"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
+</RelativeLayout>

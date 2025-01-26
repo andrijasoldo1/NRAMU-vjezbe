@@ -85,6 +85,10 @@ public class AllCaseAdapter extends BaseCaseAdapter {
             Toast.makeText(context, "Error displaying case details", Toast.LENGTH_SHORT).show();
         }
 
+
+
+
+
         return convertView;
     }
 }

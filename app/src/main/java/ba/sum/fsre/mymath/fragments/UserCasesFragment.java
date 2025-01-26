@@ -333,18 +333,43 @@ public class UserCasesFragment extends Fragment {
     }
 
     private void updateAttachedDocsListView() {
-        LinearLayout container = requireView().findViewById(R.id.documentThumbnailContainer);
-        container.removeAllViews();
+        // Get the main container and thumbnail container
+        LinearLayout documentThumbnailContainer = requireView().findViewById(R.id.documentThumbnailContainer);
+        LinearLayout thumbnailContainer = requireView().findViewById(R.id.thumbnailContainer);
+        Button detachButton = requireView().findViewById(R.id.detachDocumentButton);
+
+        // Clear existing views in the thumbnail container
+        thumbnailContainer.removeAllViews();
+
+        if (attachedDocumentsBase64.isEmpty()) {
+            // Hide the entire container if no documents exist
+            documentThumbnailContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        // Show the container when there are documents
+        documentThumbnailContainer.setVisibility(View.VISIBLE);
 
         for (int i = 0; i < attachedDocumentsBase64.size(); i++) {
             final int index = i;
 
+            // Create a layout for each document thumbnail
             LinearLayout itemLayout = new LinearLayout(requireContext());
-            itemLayout.setOrientation(LinearLayout.HORIZONTAL);
+            itemLayout.setOrientation(LinearLayout.VERTICAL);
             itemLayout.setPadding(8, 8, 8, 8);
+            itemLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            ));
 
+            // Create and configure the thumbnail
             ImageView thumbnail = new ImageView(requireContext());
-            thumbnail.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
+            LinearLayout.LayoutParams thumbnailParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+            );
+            thumbnail.setLayoutParams(thumbnailParams);
+            thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             Bitmap pdfThumbnail = generatePdfThumbnailFromBase64(attachedDocumentsBase64.get(index));
             if (pdfThumbnail != null) {
@@ -353,23 +378,25 @@ public class UserCasesFragment extends Fragment {
                 thumbnail.setImageResource(android.R.drawable.ic_menu_report_image);
             }
 
+            // Open the PDF on thumbnail click
             thumbnail.setOnClickListener(v -> {
                 Intent intent = new Intent(requireContext(), PdfViewerActivity.class);
                 intent.putExtra(PdfViewerActivity.EXTRA_PDF_BASE64, attachedDocumentsBase64.get(index));
                 startActivity(intent);
             });
 
+            // Add thumbnail to the item layout and container
             itemLayout.addView(thumbnail);
-
-            Button detachButton = new Button(requireContext());
-            detachButton.setText("Detach");
-            detachButton.setOnClickListener(v -> {
-                attachedDocumentsBase64.remove(index);
-                updateAttachedDocsListView();
-            });
-            itemLayout.addView(detachButton);
-
-            container.addView(itemLayout);
+            thumbnailContainer.addView(itemLayout);
         }
+
+        // Configure the detach button to clear all documents
+        detachButton.setVisibility(View.VISIBLE);
+        detachButton.setOnClickListener(v -> {
+            attachedDocumentsBase64.clear();
+            updateAttachedDocsListView();
+        });
     }
+
+
 }

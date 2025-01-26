@@ -3,6 +3,7 @@ package ba.sum.fsre.mymath.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -56,6 +57,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
         // Text messages
         if (message.getText() != null && !message.getText().isEmpty()) {
             holder.messageText.setVisibility(View.VISIBLE);
+            holder.messageText.setTextColor(Color.parseColor("#FFFFFF"));
             holder.messageText.setText(message.getText());
         } else {
             holder.messageText.setVisibility(View.GONE);

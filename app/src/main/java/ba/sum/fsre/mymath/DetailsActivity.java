@@ -45,9 +45,6 @@ public class DetailsActivity extends AppCompatActivity {
 
             if (item.getItemId() == R.id.nav_profil) {
                 selectedFragment = new DetailsFragment();
-            } else if (item.getItemId() == R.id.nav_lekcije) {
-                selectedFragment = new ListViewFragment();
-            } else if (item.getItemId() == R.id.nav_game1) {
                 startActivity(new Intent(this, Game1Activity.class));
             } else if (item.getItemId() == R.id.nav_cases) {
                 selectedFragment = new AllCasesFragment();

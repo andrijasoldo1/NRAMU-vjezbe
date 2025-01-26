@@ -35,7 +35,14 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Case Name Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Naziv slučaja"
+                android:textColor="#356899"
+                android:textSize="14sp" />
             <EditText
                 android:id="@+id/caseNameInput"
                 android:layout_width="match_parent"
@@ -45,10 +52,16 @@
                 android:hint="Case Name"
                 android:inputType="text"
                 android:paddingStart="16dp"
-
                 android:textSize="14sp" />
 
-            <!-- Description Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Opis slučaja"
+                android:textColor="#356899"
+                android:textSize="14sp" />
             <EditText
                 android:id="@+id/caseDescriptionInput"
                 android:layout_width="match_parent"
@@ -60,10 +73,17 @@
                 android:hint="Description"
                 android:inputType="textMultiLine"
                 android:padding="16dp"
-
                 android:textSize="14sp" />
 
-            <!-- Price Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Cijena"
+                android:textColor="#356899"
+                android:textSize="14sp" />
+
             <EditText
                 android:id="@+id/casePriceInput"
                 android:layout_width="match_parent"
@@ -74,7 +94,6 @@
                 android:hint="Price"
                 android:inputType="numberDecimal"
                 android:paddingStart="16dp"
-
                 android:textSize="14sp" />
 
             <!-- Type of Case Section -->
@@ -121,7 +140,6 @@
                 android:layout_marginTop="16dp"
                 android:fontFamily="@font/poppins_medium"
                 android:text="Publish case anonymously"
-
                 android:textSize="14sp" />
 
             <!-- Attach Document Button -->
@@ -136,13 +154,41 @@
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
 
-            <!-- Document Container -->
+
+
+
             <LinearLayout
                 android:id="@+id/documentThumbnailContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:background="@android:color/white"
+                android:visibility="gone">
+
+                <!-- Thumbnail Container for the PDF -->
+                <LinearLayout
+                    android:id="@+id/thumbnailContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/edit_text_border"/>
+
+                <!-- Detach Button -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/detachDocumentButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/button_background"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Detach Document"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
 
             <!-- Action Buttons -->
             <androidx.appcompat.widget.AppCompatButton
@@ -167,10 +213,9 @@
                 android:textColor="#356899"
                 android:textSize="16sp" />
 
-            <!-- ListView -->
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 
     <ListView
         android:id="@+id/listView"

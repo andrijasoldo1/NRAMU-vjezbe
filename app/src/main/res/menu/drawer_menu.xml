@@ -4,13 +4,6 @@
         android:id="@+id/nav_profil"
         android:title="Profil" />
 
-    <item
-        android:id="@+id/nav_lekcije"
-        android:title="Lekcije" />
-
-    <item
-        android:id="@+id/nav_game1"
-        android:title="Game 1" />
 
     <item
         android:id="@+id/nav_cases"
