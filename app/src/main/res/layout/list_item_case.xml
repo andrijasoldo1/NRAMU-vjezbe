@@ -33,6 +33,24 @@
         android:textSize="14sp"
         android:paddingBottom="4dp" />
 
+    <!-- Case Price -->
+    <TextView
+        android:id="@+id/case_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Price: Not set"
+        android:textSize="14sp"
+        android:paddingBottom="4dp" />
+
+    <!-- Case Description -->
+    <TextView
+        android:id="@+id/case_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No description available"
+        android:textSize="14sp"
+        android:paddingBottom="8dp" />
+
     <!-- User Email -->
     <TextView
         android:id="@+id/user_email"
@@ -62,5 +80,14 @@
             android:layout_height="wrap_content"
             android:text="Delete"
             android:layout_marginStart="8dp" />
+
+        <Button
+            android:id="@+id/send_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send Case"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
     </LinearLayout>
 </LinearLayout>

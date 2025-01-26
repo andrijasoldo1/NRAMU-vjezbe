@@ -79,7 +79,7 @@ public class UserCasesFragment extends Fragment {
         attachedDocumentsBase64 = new ArrayList<>();
         expertiseList = new ArrayList<>();
         statusList = new ArrayList<>();
-        adapter = new CaseAdapter(requireContext(), userCases, this::populateFormForEditing);
+        adapter = new CaseAdapter(requireContext(), userCases, this::populateFormForEditing, true);
         listView.setAdapter(adapter);
 
         loadUserCases();

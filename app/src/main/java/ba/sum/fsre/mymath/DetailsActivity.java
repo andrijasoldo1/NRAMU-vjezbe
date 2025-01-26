@@ -62,6 +62,9 @@ public class DetailsActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.nav_chatbot) {
                 // Launch ChatbotActivity
                 startActivity(new Intent(this, ChatbotActivity.class));
+            } else if (item.getItemId() == R.id.nav_case_sharing) {
+                // Launch CaseSharingActivity
+                startActivity(new Intent(this, CaseSharingActivity.class));
             }
 
             if (selectedFragment != null) {
