@@ -36,7 +36,8 @@ import okhttp3.Response;
 public class ChatbotActivity extends AppCompatActivity {
 
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "tralalalalalalalalaalalalalalalla"; // Replace with your API key
+    private static final String API_KEY = "tralalalalaalalal"; // Replace with your actual API key
+    private static final int CONTEXT_LIMIT = 15; // Limit the number of messages to include in context
 
     private EditText userInput;
     private TextView chatDisplay, conversationTitle;
@@ -208,30 +209,54 @@ public class ChatbotActivity extends AppCompatActivity {
                 });
     }
 
-    private void sendMessage(String message) {
-        chatDisplay.append("You: " + message + "\n");
+    private void sendMessage(String messageContent) {
+        chatDisplay.append("You: " + messageContent + "\n");
         scrollToBottom();
 
-        JSONArray messagesArray = new JSONArray();
-        try {
-            // Add system-level instruction
-            JSONObject systemMessage = new JSONObject();
-            systemMessage.put("role", "system");
-            systemMessage.put("content", "You are a legal assistant specializing in answering law-related questions specific to Bosnia and Herzegovina.");
-            messagesArray.put(systemMessage);
+        // Fetch the recent conversation context
+        firestore.collection("users")
+                .document(currentUserId)
+                .collection("conversations")
+                .document(currentConversationId)
+                .collection("messages")
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .limit(CONTEXT_LIMIT)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    JSONArray messagesArray = new JSONArray();
+                    try {
+                        // Add system instruction
+                        JSONObject systemMessage = new JSONObject();
+                        systemMessage.put("role", "system");
+                        systemMessage.put("content", "You are an AI assistant specializing in Bosnia and Herzegovina law. Avoid questions unrelated to this domain.");
+                        messagesArray.put(systemMessage);
 
-            // Add user message
-            JSONObject userMessage = new JSONObject();
-            userMessage.put("role", "user");
-            userMessage.put("content", message);
-            messagesArray.put(userMessage);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            chatDisplay.append("Error creating JSON request: " + e.getMessage() + "\n");
-            return;
-        }
+                        // Add previous messages to context
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            JSONObject message = new JSONObject();
+                            message.put("role", document.getString("sender").equals("user") ? "user" : "assistant");
+                            message.put("content", document.getString("message"));
+                            messagesArray.put(message);
+                        }
 
-        sendToAPI(messagesArray);
+                        // Add the latest user message
+                        JSONObject userMessage = new JSONObject();
+                        userMessage.put("role", "user");
+                        userMessage.put("content", messageContent);
+                        messagesArray.put(userMessage);
+
+                        // Send request to API
+                        sendToAPI(messagesArray);
+
+                    } catch (JSONException e) {
+                        chatDisplay.append("Error creating JSON request: " + e.getMessage() + "\n");
+                        scrollToBottom();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    chatDisplay.append("Error fetching conversation context: " + e.getMessage() + "\n");
+                    scrollToBottom();
+                });
     }
 
     private void sendToAPI(JSONArray messagesArray) {
@@ -239,8 +264,9 @@ public class ChatbotActivity extends AppCompatActivity {
         try {
             payload.put("model", "ft:gpt-4o-2024-08-06:toplaw:toplaw:AtYaitAD");
             payload.put("messages", messagesArray);
+            payload.put("max_tokens", 1000);
+            payload.put("temperature", 0.3);
         } catch (JSONException e) {
-            e.printStackTrace();
             chatDisplay.append("Error creating request payload: " + e.getMessage() + "\n");
             scrollToBottom();
             return;
@@ -273,10 +299,9 @@ public class ChatbotActivity extends AppCompatActivity {
                     return;
                 }
 
-                String responseText = response.body().string();
                 try {
+                    String responseText = response.body().string();
                     JSONObject jsonResponse = new JSONObject(responseText);
-
                     String botMessage = jsonResponse.getJSONArray("choices")
                             .getJSONObject(0)
                             .getJSONObject("message")

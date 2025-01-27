@@ -37,7 +37,7 @@ public class CaseAdapter extends BaseCaseAdapter {
     private final List<Case> cases;
     private final EditCaseCallback callback;
     private final FirebaseFirestore db;
-    private final boolean showButtons; // Added this field
+    private final boolean showButtons;
 
     public CaseAdapter(Context context, List<Case> cases, @Nullable EditCaseCallback callback, boolean showButtons) {
         super(context, R.layout.list_item_case, cases);
@@ -45,7 +45,7 @@ public class CaseAdapter extends BaseCaseAdapter {
         this.cases = cases;
         this.callback = callback;
         this.db = FirebaseFirestore.getInstance();
-        this.showButtons = showButtons; // Initialize the field
+        this.showButtons = showButtons;
     }
 
     @NonNull
@@ -165,11 +165,16 @@ public class CaseAdapter extends BaseCaseAdapter {
                         String userId = document.getId();
                         String email = document.getString("eMail");
 
+                        // Log each user's details
+                        Log.d(TAG, "UserID: " + userId + ", Email: " + email);
+
                         if (email != null && !email.equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                             userIds.add(userId);
                             userEmails.add(email);
                         }
                     }
+
+                    Log.d(TAG, "Total users fetched: " + userEmails.size());
 
                     if (!userEmails.isEmpty()) {
                         showRecipientSelectionDialog(caseId, userIds, userEmails);
@@ -182,6 +187,7 @@ public class CaseAdapter extends BaseCaseAdapter {
                     Toast.makeText(context, "Failed to fetch users.", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void showRecipientSelectionDialog(String caseId, List<String> userIds, List<String> userEmails) {
         String[] emailArray = userEmails.toArray(new String[0]);
