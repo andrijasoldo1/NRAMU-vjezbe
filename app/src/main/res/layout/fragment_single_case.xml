@@ -6,12 +6,12 @@
     <!-- Back Button -->
     <ImageButton
         android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
-        android:background="@null"
-        android:src="@drawable/ic_send" />
+        android:background="@drawable/circular_background"
+        android:src="@drawable/ic_back" />
 
     <!-- Price -->
     <TextView
@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="34dp"
-        android:layout_marginTop="34dp"
+        android:layout_marginTop="44dp"
         android:layout_alignParentEnd="true"
         android:text="$180,00"
         android:textColor="#356899"
@@ -104,6 +104,43 @@
         android:text="We are the teams who create all of Facebook's products used by billions of people around the world. Want to build new features and improve existing products like Messenger, Video, Groups, News Feed, Search and more?"
         android:textColor="#000000"
         android:textSize="14sp" />
+
+
+    <TextView
+        android:id="@+id/document_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_below="@id/description"
+        android:text="Dokument: "
+        android:visibility="gone"
+        android:textColor="#356899"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:id="@+id/documentThumbnailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_below="@id/document_text"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="#FFFFFF"
+        android:padding="8dp"
+        android:elevation="4dp">
+
+
+
+        <LinearLayout
+            android:id="@+id/thumbnailContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+
+    </LinearLayout>
 
     <!-- Next Button -->
     <Button
