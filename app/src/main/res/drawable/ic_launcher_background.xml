@@ -1,32 +1,11 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-
-    <!-- Simulated Gradient: Top to Bottom with 24 slices -->
-    <path android:fillColor="#356899" android:pathData="M0,0h108v4.5h-108z"/> <!-- Slice 1 -->
-    <path android:fillColor="#326293" android:pathData="M0,4.5h108v4.5h-108z"/> <!-- Slice 2 -->
-    <path android:fillColor="#2F5C8D" android:pathData="M0,9h108v4.5h-108z"/> <!-- Slice 3 -->
-    <path android:fillColor="#2C5787" android:pathData="M0,13.5h108v4.5h-108z"/> <!-- Slice 4 -->
-    <path android:fillColor="#295181" android:pathData="M0,18h108v4.5h-108z"/> <!-- Slice 5 -->
-    <path android:fillColor="#264C7B" android:pathData="M0,22.5h108v4.5h-108z"/> <!-- Slice 6 -->
-    <path android:fillColor="#234675" android:pathData="M0,27h108v4.5h-108z"/> <!-- Slice 7 -->
-    <path android:fillColor="#204170" android:pathData="M0,31.5h108v4.5h-108z"/> <!-- Slice 8 -->
-    <path android:fillColor="#1D3B6A" android:pathData="M0,36h108v4.5h-108z"/> <!-- Slice 9 -->
-    <path android:fillColor="#1A3664" android:pathData="M0,40.5h108v4.5h-108z"/> <!-- Slice 10 -->
-    <path android:fillColor="#17315E" android:pathData="M0,45h108v4.5h-108z"/> <!-- Slice 11 -->
-    <path android:fillColor="#142B58" android:pathData="M0,49.5h108v4.5h-108z"/> <!-- Slice 12 -->
-    <path android:fillColor="#122653" android:pathData="M0,54h108v4.5h-108z"/> <!-- Slice 13 -->
-    <path android:fillColor="#0F214D" android:pathData="M0,58.5h108v4.5h-108z"/> <!-- Slice 14 -->
-    <path android:fillColor="#0D1E48" android:pathData="M0,63h108v4.5h-108z"/> <!-- Slice 15 -->
-    <path android:fillColor="#0C1C46" android:pathData="M0,67.5h108v4.5h-108z"/> <!-- Slice 16 -->
-    <path android:fillColor="#0B1A44" android:pathData="M0,72h108v4.5h-108z"/> <!-- Slice 17 -->
-    <path android:fillColor="#0A1842" android:pathData="M0,76.5h108v4.5h-108z"/> <!-- Slice 18 -->
-    <path android:fillColor="#091640" android:pathData="M0,81h108v4.5h-108z"/> <!-- Slice 19 -->
-    <path android:fillColor="#08143E" android:pathData="M0,85.5h108v4.5h-108z"/> <!-- Slice 20 -->
-    <path android:fillColor="#07123C" android:pathData="M0,90h108v4.5h-108z"/> <!-- Slice 21 -->
-    <path android:fillColor="#06103A" android:pathData="M0,94.5h108v4.5h-108z"/> <!-- Slice 22 -->
-    <path android:fillColor="#050E38" android:pathData="M0,99h108v4.5h-108z"/> <!-- Slice 23 -->
-    <path android:fillColor="#050E35" android:pathData="M0,103.5h108v4.5h-108z"/> <!-- Slice 24 (Final Color) -->
-</vector>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:type="linear"
+        android:angle="135"
+        android:startColor="@color/primary_356899"
+        android:endColor="@color/black_0d0d26"
+        android:startX="0"
+        android:startY="100"
+        android:endX="100"
+        android:endY="0" />
+</shape>

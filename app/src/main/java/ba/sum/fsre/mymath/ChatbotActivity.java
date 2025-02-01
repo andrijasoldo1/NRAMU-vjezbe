@@ -36,7 +36,8 @@ import okhttp3.Response;
 public class ChatbotActivity extends AppCompatActivity {
 
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "tralalalalaalalal"; // Replace with your actual API key
+    private static final String API_KEY =
+            "SIKE"; // Replace with your actual API key
     private static final int CONTEXT_LIMIT = 15; // Limit the number of messages to include in context
 
     private EditText userInput;
