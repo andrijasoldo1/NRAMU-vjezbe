@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="109dp"
         android:fontFamily="@font/poppins_bold"
-        android:text="Prijava"
+        android:text="Login"
         android:textAlignment="center"
         android:textColor="@color/primary_356899"
         android:textSize="29sp"
@@ -72,7 +72,7 @@
             android:layout_weight="1"
             android:background="@drawable/toggle_left_background"
             app:backgroundTint="@null"
-            android:text="Prijava"
+            android:text="Login"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
@@ -83,7 +83,7 @@
             android:layout_weight="1"
             android:background="@drawable/toggle_right_background"
             app:backgroundTint="@null"
-            android:text="Registracija"
+            android:text="Register"
             android:textColor="@color/white"
             android:textSize="16sp" />
     </LinearLayout>
