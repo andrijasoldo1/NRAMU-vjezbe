@@ -4,28 +4,37 @@ plugins {
 }
 
 android {
-    namespace 'ba.sum.fsre.mymath'
+    namespace 'ba.sum.fsre.toplaw'
     compileSdk 34
 
     defaultConfig {
-        applicationId "ba.sum.fsre.mymath"
+        applicationId "ba.sum.fsre.toplaw"
         minSdk 26
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        targetSdk 34
+        versionCode 3
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-
+    signingConfigs {
+        release {
+            storeFile file("C:/Users/Pc/AndroidStudioProjects/MyMath/topLawKey.jks")
+            storePassword "andrija1"
+            keyAlias "topLawAlias"
+            keyPassword "andrija1"
+        }
+    }
 
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -65,5 +74,4 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     implementation "com.google.android.material:material:1.9.0"
-
 }

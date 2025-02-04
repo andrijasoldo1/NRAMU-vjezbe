@@ -21,16 +21,7 @@
         android:padding="20dp">
 
         <!-- Attach Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/attachButton"
-            android:layout_width="46dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@android:color/white"
-            android:elevation="4dp"
-            android:src="@drawable/ic_attach"
-            android:contentDescription="Attach File"
-            android:tint="#356899" />
+
 
         <!-- Message Input -->
         <EditText

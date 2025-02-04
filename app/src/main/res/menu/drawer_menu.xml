@@ -4,7 +4,6 @@
         android:id="@+id/nav_profil"
         android:title="Profil" />
 
-
     <item
         android:id="@+id/nav_cases"
         android:title="All Cases" />
@@ -16,6 +15,7 @@
     <item
         android:id="@+id/nav_messages"
         android:title="Messages" />
+
     <item
         android:id="@+id/nav_map"
         android:title="Map" />
@@ -23,9 +23,11 @@
     <item
         android:id="@+id/nav_lawyer_reviews"
         android:title="Lawyer Reviews" />
+
     <item
         android:id="@+id/nav_chatbot"
         android:title="Chatbot" />
+
     <item
         android:id="@+id/nav_case_sharing"
         android:title="Case Sharing" />

@@ -143,15 +143,5 @@
     </LinearLayout>
 
     <!-- Next Button -->
-    <Button
-        android:id="@+id/next_button"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="16dp"
-        android:background="#356899"
-        android:text="Next"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
+
 </RelativeLayout>
