@@ -51,7 +51,6 @@
         android:textColor="#356899"
         android:textSize="16sp" />
 
-
     <!-- Name -->
     <TextView
         android:id="@+id/name"
@@ -89,7 +88,6 @@
         android:textColor="#356899"
         android:textSize="24sp" />
 
-
     <!-- Description -->
     <TextView
         android:id="@+id/description"
@@ -101,10 +99,9 @@
         android:background="#FFFFFF"
         android:elevation="4dp"
         android:padding="16dp"
-        android:text="We are the teams who create all of Facebook's products used by billions of people around the world. Want to build new features and improve existing products like Messenger, Video, Groups, News Feed, Search and more?"
+        android:text="We are the teams who create all of Facebook's products used by billions of people around the world..."
         android:textColor="#000000"
         android:textSize="14sp" />
-
 
     <TextView
         android:id="@+id/document_text"
@@ -131,17 +128,24 @@
         android:padding="8dp"
         android:elevation="4dp">
 
-
-
         <LinearLayout
             android:id="@+id/thumbnailContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
-
-
     </LinearLayout>
 
-    <!-- Next Button -->
+    <!-- Prijavi se za slučaj Button -->
+    <Button
+        android:id="@+id/apply_case_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Prijavi se za slučaj"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:backgroundTint="#356899"
+        android:fontFamily="@font/poppins_medium" />
 
 </RelativeLayout>

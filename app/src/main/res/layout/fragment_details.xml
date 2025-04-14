@@ -304,18 +304,53 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="16dp" />
 
-            <EditText
-                android:id="@+id/cvTxt"
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/uploadCvBtn"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:background="@drawable/edit_text_border"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/button_outline_background"
                 android:fontFamily="@font/poppins_medium"
-                android:hint="CV"
-                android:inputType="textUri"
-                android:paddingStart="16dp"
-                android:textColor="#AFB0B6"
-                android:textSize="14sp"
-                android:layout_marginBottom="24dp" />
+                android:text="Dodaj CV (PDF)"
+                android:textColor="#356899"
+                android:textSize="14sp" />
+
+            <!-- CV Preview Container -->
+            <LinearLayout
+                android:id="@+id/cvThumbnailContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:background="@android:color/white"
+                android:visibility="gone">
+
+                <!-- Thumbnail of first page (clickable!) -->
+                <LinearLayout
+                    android:id="@+id/cvThumbnailPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/edit_text_border"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Remove CV Button -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/removeCvBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/button_outline_background"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Ukloni CV"
+                    android:textColor="#D32F2F"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+
+
 
             <!-- Action Buttons -->
             <androidx.appcompat.widget.AppCompatButton

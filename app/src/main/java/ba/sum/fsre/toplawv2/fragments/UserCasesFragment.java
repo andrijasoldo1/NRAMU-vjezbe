@@ -61,6 +61,7 @@ public class UserCasesFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         listView = view.findViewById(R.id.listView);
         listView.setVisibility(View.GONE);
+
         // Initialize UI elements
         toggleFormButton = view.findViewById(R.id.toggleFormButton);
         caseNameInput = view.findViewById(R.id.caseNameInput);
@@ -80,6 +81,21 @@ public class UserCasesFragment extends Fragment {
         adapter = new CaseAdapter(requireContext(), userCases, this::populateFormForEditing, true);
         listView.setAdapter(adapter);
 
+        // ✅ When a case is clicked, open it in SingleCaseFragment
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            Case selectedCase = userCases.get(position);
+            if (selectedCase.getId() != null) {
+                Fragment fragment = SingleCaseFragment.newInstance(selectedCase.getId());
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            } else {
+                Toast.makeText(requireContext(), "Case ID is missing", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         loadUserCases();
         loadExpertiseOptions();
         loadStatusOptions();
@@ -91,6 +107,7 @@ public class UserCasesFragment extends Fragment {
 
         return view;
     }
+
 
 
 
@@ -169,18 +186,37 @@ public class UserCasesFragment extends Fragment {
             return;
         }
 
-        double price = Double.parseDouble(priceText);
+        double price;
+        try {
+            price = Double.parseDouble(priceText);
+        } catch (NumberFormatException e) {
+            Toast.makeText(requireContext(), "Invalid price format", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (currentEditingCase == null) {
             Case newCase = new Case(name, userId, null, price, description, new ArrayList<>(attachedDocumentsBase64), status, isAnonymous, typeOfCase);
+
             db.collection("cases").add(newCase)
                     .addOnSuccessListener(documentReference -> {
-                        newCase.setId(documentReference.getId());
+                        String generatedId = documentReference.getId();
+                        newCase.setId(generatedId);
+
+                        db.collection("cases").document(generatedId).update("id", generatedId);
+
                         userCases.add(newCase);
                         adapter.notifyDataSetChanged();
                         clearForm();
+
+                        Toast.makeText(requireContext(), "Case successfully created!", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), "Failed to create case", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
                     });
+
         } else {
             currentEditingCase.setName(name);
             currentEditingCase.setDescription(description);
@@ -195,9 +231,17 @@ public class UserCasesFragment extends Fragment {
                         adapter.notifyDataSetChanged();
                         clearForm();
                         currentEditingCase = null;
+
+                        Toast.makeText(requireContext(), "Case updated successfully!", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), "Failed to update case", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
                     });
         }
     }
+
+
 
     private void clearForm() {
         caseNameInput.setText("");

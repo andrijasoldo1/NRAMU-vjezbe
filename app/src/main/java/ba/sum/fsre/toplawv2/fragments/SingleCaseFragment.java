@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
 import android.os.ParcelFileDescriptor;
 import android.util.Base64;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -35,12 +36,9 @@ import java.util.List;
 import ba.sum.fsre.toplawv2.PdfViewerActivity;
 import ba.sum.fsre.toplawv2.R;
 import ba.sum.fsre.toplawv2.models.Case;
+import androidx.fragment.app.FragmentTransaction;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SingleCaseFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class SingleCaseFragment extends Fragment {
     private Case currentCase;
     private FirebaseFirestore db;
@@ -65,21 +63,40 @@ public class SingleCaseFragment extends Fragment {
         thumbnailContainer = view.findViewById(R.id.thumbnailContainer);
         documentText = view.findViewById(R.id.document_text);
 
-
-        // Retrieve Case ID from Arguments
-        String caseId = getArguments() != null ? getArguments().getString("CASE_ID") : null;
-        if (caseId != null) {
-            loadCaseDetails(caseId);
-        } else {
-            Log.d("SingleCaseFragment", "CASE_ID is null, no case to display.");
-        }
-
-        // Setup Back Navigation
+        // Back Button
         ImageButton backButton = view.findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
+        // Apply button logic
+        Button applyButton = view.findViewById(R.id.apply_case_button);
+        applyButton.setOnClickListener(v -> {
+            if (currentCase != null && currentCase.getUserId() != null) {
+                OfferFormFragment offerFormFragment = OfferFormFragment.newInstance(currentCase.getUserId());
+
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, offerFormFragment)
+                        .addToBackStack(null)
+                        .commit();
+            } else {
+                Toast.makeText(requireContext(), "Cannot apply, case data is not loaded.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Retrieve Case ID from Arguments and load the case
+        String caseId = getArguments() != null ? getArguments().getString("CASE_ID") : null;
+
+        if (caseId != null) {
+            Log.d("SingleCaseFragment", "Loading case with ID: " + caseId); // ✅ DEBUG LOG
+            loadCaseDetails(caseId);
+        } else {
+            Log.e("SingleCaseFragment", "CASE_ID is null. Cannot load case.");
+            Toast.makeText(requireContext(), "No case ID provided.", Toast.LENGTH_SHORT).show();
+        }
+
         return view;
     }
+
+
 
     private void loadCaseDetails(String caseId) {
         db = FirebaseFirestore.getInstance();
@@ -89,6 +106,7 @@ public class SingleCaseFragment extends Fragment {
                     if (documentSnapshot.exists()) {
                         currentCase = documentSnapshot.toObject(Case.class);
                         if (currentCase != null) {
+                            currentCase.setId(documentSnapshot.getId());
                             updateUI();
                         }
                     } else {
@@ -99,6 +117,7 @@ public class SingleCaseFragment extends Fragment {
                         Toast.makeText(requireContext(), "Failed to load case details", Toast.LENGTH_SHORT).show()
                 );
     }
+
 
     private void updateUI() {
         if (currentCase != null) {

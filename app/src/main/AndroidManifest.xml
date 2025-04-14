@@ -35,7 +35,7 @@
             android:exported="false" /> <!-- Metadata for Google Maps API -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCFkYrKJ0VoY12UpcfFp7a3ZKQOjF7Vi5g" /> <!-- Replace YOUR_API_KEY_HERE with your actual API Key -->
+            android:value="hvalasvima" /> <!-- Replace YOUR_API_KEY_HERE with your actual API Key -->
         <!-- Messaging Activity -->
         <activity
             android:name=".MessagesActivity"
