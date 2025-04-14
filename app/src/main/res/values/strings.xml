@@ -16,4 +16,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string-array name="priority_options">
+        <item>Hitno</item>
+        <item>Važno</item>
+        <item>Dugotrajno</item>
+    </string-array>
+
+
 </resources>

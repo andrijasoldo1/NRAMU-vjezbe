@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace 'ba.sum.fsre.toplaw'
+    namespace 'ba.sum.fsre.toplawv2'
     compileSdk 34
 
     defaultConfig {
-        applicationId "ba.sum.fsre.toplaw"
+        applicationId "ba.sum.fsre.toplawv2"
         minSdk 26
         targetSdk 34
-        versionCode 3
-        versionName "1.2"
+        versionCode 6
+        versionName "1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -82,6 +82,43 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:204243413508:android:1357779fae6daece196351",
+        "android_client_info": {
+          "package_name": "ba.sum.fsre.toplawv2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "204243413508-i48mdlgnp580c9c1u0nuqi7q2mjen9a0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ba.sum.fsre.toplawv2",
+            "certificate_hash": "f4a062f01f6e9af07420fb6383bd5636c5bbb79e"
+          }
+        },
+        {
+          "client_id": "204243413508-h6staorueijvuupprmvvcgvu8j41lltj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGJI333y2LVKdKxzNzwRwL46p5Q_-zlxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "204243413508-h6staorueijvuupprmvvcgvu8j41lltj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:204243413508:android:46b5ad27cb293185196351",
         "android_client_info": {
           "package_name": "fsre.sum.ba.toplaw"

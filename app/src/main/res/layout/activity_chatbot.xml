@@ -83,4 +83,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <Button
+        android:id="@+id/generateDocumentButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generiraj dokument"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/sendButton" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
