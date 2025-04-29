@@ -18,10 +18,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="20dp">
+        android:padding="20dp"
+        android:gravity="center_vertical">
 
         <!-- Attach Button -->
-
+        <ImageButton
+            android:id="@+id/attachButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_attach_file"
+            android:contentDescription="Attach File" />
 
         <!-- Message Input -->
         <EditText
@@ -33,7 +41,6 @@
             android:hint="Send message"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
-
             android:textSize="15sp"
             android:fontFamily="@font/poppins_regular" />
 
@@ -43,10 +50,9 @@
             android:layout_width="54dp"
             android:layout_height="50dp"
             android:layout_marginStart="8dp"
-
+            android:background="@android:color/transparent"
             android:src="@drawable/ic_send"
-            android:contentDescription="Send Message"
-             />
+            android:contentDescription="Send Message" />
     </LinearLayout>
 
 </LinearLayout>

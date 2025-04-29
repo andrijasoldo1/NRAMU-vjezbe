@@ -64,11 +64,9 @@
         <activity
             android:name=".CalendarActivity"
             android:exported="true" />
-
         <activity
             android:name=".MeetingDetailActivity"
             android:exported="true" />
-
         <activity
             android:name=".CaseSharingActivity"
             android:exported="true" />
@@ -89,7 +87,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
     </application>
 
 </manifest>

@@ -20,7 +20,7 @@
             android:id="@+id/attachButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_attach" />
+            android:src="@drawable/ic_attach_file" />
 
         <EditText
             android:id="@+id/messageInput"
