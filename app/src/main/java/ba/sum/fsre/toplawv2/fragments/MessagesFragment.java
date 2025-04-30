@@ -19,6 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,7 @@ public class MessagesFragment extends Fragment {
     private ListView userListView;
     private List<User> userList;
     private Map<User, String> userUidMap;
-    private Map<String, String> lastMessagesMap;
+    private Map<String, Message> lastMessagesObjects;
     private UserAdapter adapter;
     private FirebaseFirestore db;
 
@@ -46,10 +48,10 @@ public class MessagesFragment extends Fragment {
         userListView = view.findViewById(R.id.user_list_view);
         userList = new ArrayList<>();
         userUidMap = new HashMap<>();
-        lastMessagesMap = new HashMap<>();
+        lastMessagesObjects = new HashMap<>();
         db = FirebaseFirestore.getInstance();
 
-        adapter = new UserAdapter(requireContext(), userList, userUidMap, lastMessagesMap);
+        adapter = new UserAdapter(requireContext(), userList, userUidMap, lastMessagesObjects);
         userListView.setAdapter(adapter);
 
         loadUsers();
@@ -78,8 +80,7 @@ public class MessagesFragment extends Fragment {
                     userUidMap.put(user, uid);
                 }
             }
-            adapter.notifyDataSetChanged(); // show names
-            loadLastMessagesReceived(); // show previews after
+            loadLastMessagesReceived();
         });
     }
 
@@ -88,7 +89,7 @@ public class MessagesFragment extends Fragment {
 
         db.collection("messages")
                 .whereArrayContains("participants", currentUserId)
-                .orderBy("timestamp", Query.Direction.DESCENDING) // obrnut redoslijed
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(100)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
@@ -96,20 +97,27 @@ public class MessagesFragment extends Fragment {
                         Message msg = doc.toObject(Message.class);
                         if (msg == null) continue;
 
-                        // Želimo samo poruke koje je KORISNIK PRIMIO
                         if (!currentUserId.equals(msg.getReceiverId())) continue;
 
                         String senderId = msg.getSenderId();
-                        if (!lastMessagesMap.containsKey(senderId)) {
-                            String preview = (msg.getText() != null && !msg.getText().isEmpty())
-                                    ? msg.getText() : "[Medijska poruka]";
-                            lastMessagesMap.put(senderId, preview);
+                        if (!lastMessagesObjects.containsKey(senderId)) {
+                            lastMessagesObjects.put(senderId, msg);
                         }
                     }
+
+
+                    Collections.sort(userList, (u1, u2) -> {
+                        String uid1 = userUidMap.get(u1);
+                        String uid2 = userUidMap.get(u2);
+                        Message m1 = lastMessagesObjects.get(uid1);
+                        Message m2 = lastMessagesObjects.get(uid2);
+                        long t1 = (m1 != null) ? m1.getTimestamp() : 0;
+                        long t2 = (m2 != null) ? m2.getTimestamp() : 0;
+                        return Long.compare(t2, t1);
+                    });
+
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> Log.e("LastMessage", "Failed to load: " + e.getMessage()));
     }
-
-
 }

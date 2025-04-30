@@ -15,10 +15,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import ba.sum.fsre.toplawv2.R;
+import ba.sum.fsre.toplawv2.models.Message;
 import ba.sum.fsre.toplawv2.models.User;
 
 public class UserAdapter extends ArrayAdapter<User> {
@@ -26,17 +30,17 @@ public class UserAdapter extends ArrayAdapter<User> {
     private final Context context;
     private final List<User> users;
     private final Map<User, String> userUidMap;
-    private final Map<String, String> lastMessagesMap;
+    private final Map<String, Message> lastMessagesObjects;
 
     public UserAdapter(@NonNull Context context,
                        @NonNull List<User> users,
                        @NonNull Map<User, String> userUidMap,
-                       @NonNull Map<String, String> lastMessagesMap) {
+                       @NonNull Map<String, Message> lastMessagesObjects) {
         super(context, R.layout.list_item_user, users);
         this.context = context;
         this.users = users;
         this.userUidMap = userUidMap;
-        this.lastMessagesMap = lastMessagesMap;
+        this.lastMessagesObjects = lastMessagesObjects;
     }
 
     @NonNull
@@ -53,6 +57,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         TextView userExpertiseView = convertView.findViewById(R.id.user_expertise);
         TextView userLawyerStatusView = convertView.findViewById(R.id.user_lawyer_status);
         TextView lastMessageView = convertView.findViewById(R.id.user_last_message);
+        TextView timeStampView = convertView.findViewById(R.id.time_stamp);
         ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         userNameView.setText(user.getFirstName() + " " + user.getLastName());
@@ -72,23 +77,32 @@ public class UserAdapter extends ArrayAdapter<User> {
             userLawyerStatusView.setVisibility(View.GONE);
         }
 
-        // Last message logic
         String uid = userUidMap.get(user);
         if (uid != null) {
-            String lastMsg = lastMessagesMap.get(uid);
-            if (lastMsg != null && !lastMsg.isEmpty()) {
-                lastMessageView.setText(lastMsg);
+            Message lastMessage = lastMessagesObjects.get(uid);
+            if (lastMessage != null) {
+                String preview = (lastMessage.getText() != null && !lastMessage.getText().isEmpty())
+                        ? lastMessage.getText() : "[Medijska poruka]";
+                lastMessageView.setText(preview);
                 lastMessageView.setVisibility(View.VISIBLE);
+
+
+                long timestamp = lastMessage.getTimestamp();
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                timeStampView.setText(sdf.format(new Date(timestamp)));
+                timeStampView.setVisibility(View.VISIBLE);
             } else {
                 lastMessageView.setVisibility(View.GONE);
+                timeStampView.setVisibility(View.GONE);
             }
-            Log.d("UserAdapter", "User: " + user.getFirstName() + ", UID: " + uid + ", LastMsg: " + lastMsg);
+            Log.d("UserAdapter", "User: " + user.getFirstName() + ", UID: " + uid + ", LastMsg: " +
+                    (lastMessage != null ? lastMessage.getText() : "null"));
         } else {
             lastMessageView.setVisibility(View.GONE);
+            timeStampView.setVisibility(View.GONE);
             Log.w("UserAdapter", "UID missing for user: " + user.getFirstName());
         }
 
-        // Load profile picture
         if (user.getPicture() != null && isBase64(user.getPicture())) {
             try {
                 byte[] decodedBytes = Base64.decode(user.getPicture(), Base64.DEFAULT);
