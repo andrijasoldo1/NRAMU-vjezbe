@@ -20,7 +20,6 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,8 @@ public class MessagesFragment extends Fragment {
     private UserAdapter adapter;
     private FirebaseFirestore db;
 
+    private Map<String, User> allUsersMap;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class MessagesFragment extends Fragment {
         userList = new ArrayList<>();
         userUidMap = new HashMap<>();
         lastMessagesObjects = new HashMap<>();
+        allUsersMap = new HashMap<>();
         db = FirebaseFirestore.getInstance();
 
         adapter = new UserAdapter(requireContext(), userList, userUidMap, lastMessagesObjects);
@@ -70,14 +72,12 @@ public class MessagesFragment extends Fragment {
 
     private void loadUsers() {
         db.collection("users").get().addOnSuccessListener(querySnapshot -> {
-            userList.clear();
-            userUidMap.clear();
+            allUsersMap.clear();
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                 User user = document.toObject(User.class);
                 if (user != null) {
                     String uid = document.getId();
-                    userList.add(user);
-                    userUidMap.put(user, uid);
+                    allUsersMap.put(uid, user);
                 }
             }
             loadLastMessagesReceived();
@@ -93,15 +93,32 @@ public class MessagesFragment extends Fragment {
                 .limit(100)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    lastMessagesObjects.clear();
+                    userUidMap.clear();
+                    userList.clear();
+
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         Message msg = doc.toObject(Message.class);
                         if (msg == null) continue;
 
-                        if (!currentUserId.equals(msg.getReceiverId())) continue;
 
-                        String senderId = msg.getSenderId();
-                        if (!lastMessagesObjects.containsKey(senderId)) {
-                            lastMessagesObjects.put(senderId, msg);
+                        String otherUserId = null;
+                        for (String participant : msg.getParticipants()) {
+                            if (!participant.equals(currentUserId)) {
+                                otherUserId = participant;
+                                break;
+                            }
+                        }
+
+                        if (otherUserId == null || lastMessagesObjects.containsKey(otherUserId)) continue;
+
+
+                        lastMessagesObjects.put(otherUserId, msg);
+
+                        User user = allUsersMap.get(otherUserId);
+                        if (user != null) {
+                            userList.add(user);
+                            userUidMap.put(user, otherUserId);
                         }
                     }
 
