@@ -7,7 +7,7 @@
     android:paddingVertical="8dp"
     android:paddingHorizontal="24dp">
 
-    <!-- Profile Picture with fixed circular shape -->
+    <!-- Profile Picture -->
     <ImageView
         android:id="@+id/profile_image"
         android:layout_width="40dp"
@@ -18,18 +18,19 @@
         android:background="@drawable/circular_background"
         android:clipToOutline="true" />
 
-    <!-- User Details Container with adjusted height -->
+    <!-- Text Container -->
     <LinearLayout
+        android:id="@+id/text_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/profile_image"
+        android:layout_toStartOf="@id/time_stamp"
         android:layout_centerVertical="true"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="8dp"
-        android:layout_toStartOf="@id/time_stamp"
-        android:layout_toEndOf="@id/profile_image"
         android:orientation="vertical">
 
-        <!-- Primary Row -->
+        <!-- Name + Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -69,9 +70,23 @@
             android:maxLines="1"
             android:ellipsize="end" />
 
-        <!-- Expertise with fixed visibility -->
+        <!-- Last Message Preview -->
+        <TextView
+            android:id="@+id/user_last_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="#4A4A4A"
+            android:textSize="13sp"
+            android:letterSpacing="-0.01"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="2dp"
+            android:visibility="gone" />
+
+        <!-- Expertise -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:visibility="visible">
@@ -79,7 +94,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:fontFamily="@font/poppins_regular"
                 android:textColor="#95969D"
                 android:textSize="12sp"
@@ -98,13 +112,13 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Timestamp -->
+    <!-- Timestamp (optional, currently unused in adapter) -->
     <TextView
         android:id="@+id/time_stamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="4dp"
         android:fontFamily="@font/poppins_medium"
         android:textColor="#95969D"

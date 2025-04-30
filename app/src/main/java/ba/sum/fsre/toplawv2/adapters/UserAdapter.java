@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 import ba.sum.fsre.toplawv2.R;
 import ba.sum.fsre.toplawv2.models.User;
@@ -24,11 +25,18 @@ public class UserAdapter extends ArrayAdapter<User> {
 
     private final Context context;
     private final List<User> users;
+    private final Map<User, String> userUidMap;
+    private final Map<String, String> lastMessagesMap;
 
-    public UserAdapter(@NonNull Context context, @NonNull List<User> users) {
+    public UserAdapter(@NonNull Context context,
+                       @NonNull List<User> users,
+                       @NonNull Map<User, String> userUidMap,
+                       @NonNull Map<String, String> lastMessagesMap) {
         super(context, R.layout.list_item_user, users);
         this.context = context;
         this.users = users;
+        this.userUidMap = userUidMap;
+        this.lastMessagesMap = lastMessagesMap;
     }
 
     @NonNull
@@ -44,13 +52,12 @@ public class UserAdapter extends ArrayAdapter<User> {
         TextView userEmailView = convertView.findViewById(R.id.user_email);
         TextView userExpertiseView = convertView.findViewById(R.id.user_expertise);
         TextView userLawyerStatusView = convertView.findViewById(R.id.user_lawyer_status);
+        TextView lastMessageView = convertView.findViewById(R.id.user_last_message);
         ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
-        // Set name and email
         userNameView.setText(user.getFirstName() + " " + user.getLastName());
         userEmailView.setText(user.geteMail());
 
-        // Set area of expertise
         if (user.getAreaOfExpertise() != null && !user.getAreaOfExpertise().isEmpty()) {
             userExpertiseView.setText("Područje stručnosti: " + user.getAreaOfExpertise());
             userExpertiseView.setVisibility(View.VISIBLE);
@@ -58,12 +65,27 @@ public class UserAdapter extends ArrayAdapter<User> {
             userExpertiseView.setVisibility(View.GONE);
         }
 
-        // Display "Odvjetnik" if user is approved
         if (user.isApproved()) {
             userLawyerStatusView.setVisibility(View.VISIBLE);
             userLawyerStatusView.setText("Odvjetnik");
         } else {
             userLawyerStatusView.setVisibility(View.GONE);
+        }
+
+        // Last message logic
+        String uid = userUidMap.get(user);
+        if (uid != null) {
+            String lastMsg = lastMessagesMap.get(uid);
+            if (lastMsg != null && !lastMsg.isEmpty()) {
+                lastMessageView.setText(lastMsg);
+                lastMessageView.setVisibility(View.VISIBLE);
+            } else {
+                lastMessageView.setVisibility(View.GONE);
+            }
+            Log.d("UserAdapter", "User: " + user.getFirstName() + ", UID: " + uid + ", LastMsg: " + lastMsg);
+        } else {
+            lastMessageView.setVisibility(View.GONE);
+            Log.w("UserAdapter", "UID missing for user: " + user.getFirstName());
         }
 
         // Load profile picture
@@ -73,27 +95,23 @@ public class UserAdapter extends ArrayAdapter<User> {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                 profileImageView.setImageBitmap(bitmap);
             } catch (IllegalArgumentException e) {
-                // Log error and set default profile image
-                Log.e("UserAdapter", "Failed to decode Base64 for user: " + user.getFirstName(), e);
+                Log.e("UserAdapter", "Base64 decode failed for: " + user.getFirstName(), e);
                 profileImageView.setImageResource(R.drawable.ic_launcher_background);
             }
         } else {
-            // Use a default profile picture if the picture is null or invalid
             profileImageView.setImageResource(R.drawable.ic_launcher_background);
         }
 
         return convertView;
     }
 
-    // Helper method to validate Base64 strings
     private boolean isBase64(String str) {
         try {
-            // Decode and re-encode the string to validate Base64 format
             byte[] decoded = Base64.decode(str, Base64.DEFAULT);
             String encoded = Base64.encodeToString(decoded, Base64.DEFAULT);
             return str.trim().equals(encoded.trim());
         } catch (IllegalArgumentException e) {
-            return false; // Not valid Base64
+            return false;
         }
     }
 }
