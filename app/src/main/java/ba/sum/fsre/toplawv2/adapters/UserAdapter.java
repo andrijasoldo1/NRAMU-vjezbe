@@ -31,16 +31,19 @@ public class UserAdapter extends ArrayAdapter<User> {
     private final List<User> users;
     private final Map<User, String> userUidMap;
     private final Map<String, Message> lastMessagesObjects;
+    private final Map<String, Integer> unreadCountsMap;
 
     public UserAdapter(@NonNull Context context,
                        @NonNull List<User> users,
                        @NonNull Map<User, String> userUidMap,
-                       @NonNull Map<String, Message> lastMessagesObjects) {
+                       @NonNull Map<String, Message> lastMessagesObjects,
+                       @NonNull Map<String, Integer> unreadCountsMap) {
         super(context, R.layout.list_item_user, users);
         this.context = context;
         this.users = users;
         this.userUidMap = userUidMap;
         this.lastMessagesObjects = lastMessagesObjects;
+        this.unreadCountsMap = unreadCountsMap;
     }
 
     @NonNull
@@ -58,6 +61,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         TextView userLawyerStatusView = convertView.findViewById(R.id.user_lawyer_status);
         TextView lastMessageView = convertView.findViewById(R.id.user_last_message);
         TextView timeStampView = convertView.findViewById(R.id.time_stamp);
+        TextView unreadBadgeView = convertView.findViewById(R.id.unread_badge); // Add this to XML
         ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         userNameView.setText(user.getFirstName() + " " + user.getLastName());
@@ -86,7 +90,6 @@ public class UserAdapter extends ArrayAdapter<User> {
                 lastMessageView.setText(preview);
                 lastMessageView.setVisibility(View.VISIBLE);
 
-
                 long timestamp = lastMessage.getTimestamp();
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 timeStampView.setText(sdf.format(new Date(timestamp)));
@@ -95,11 +98,22 @@ public class UserAdapter extends ArrayAdapter<User> {
                 lastMessageView.setVisibility(View.GONE);
                 timeStampView.setVisibility(View.GONE);
             }
+
+            // Nepročitane poruke
+            Integer count = unreadCountsMap.get(uid);
+            if (count != null && count > 0) {
+                unreadBadgeView.setText(String.valueOf(count));
+                unreadBadgeView.setVisibility(View.VISIBLE);
+            } else {
+                unreadBadgeView.setVisibility(View.GONE);
+            }
+
             Log.d("UserAdapter", "User: " + user.getFirstName() + ", UID: " + uid + ", LastMsg: " +
                     (lastMessage != null ? lastMessage.getText() : "null"));
         } else {
             lastMessageView.setVisibility(View.GONE);
             timeStampView.setVisibility(View.GONE);
+            unreadBadgeView.setVisibility(View.GONE);
             Log.w("UserAdapter", "UID missing for user: " + user.getFirstName());
         }
 
@@ -129,3 +143,4 @@ public class UserAdapter extends ArrayAdapter<User> {
         }
     }
 }
+

@@ -112,7 +112,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Timestamp (optional, currently unused in adapter) -->
+    <!-- Timestamp -->
     <TextView
         android:id="@+id/time_stamp"
         android:layout_width="wrap_content"
@@ -125,4 +125,21 @@
         android:textSize="11sp"
         android:letterSpacing="-0.01" />
 
+    <!-- 🔴 Unread message count badge -->
+    <TextView
+        android:id="@+id/unread_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/time_stamp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/badge_background"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:minWidth="24dp"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:visibility="gone" />
 </RelativeLayout>

@@ -1,6 +1,8 @@
 package ba.sum.fsre.toplawv2.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,9 +38,10 @@ public class MessagesFragment extends Fragment {
     private List<User> userList;
     private Map<User, String> userUidMap;
     private Map<String, Message> lastMessagesObjects;
+    private Map<String, Integer> unreadCountsMap;
+
     private UserAdapter adapter;
     private FirebaseFirestore db;
-
     private Map<String, User> allUsersMap;
 
     @Nullable
@@ -50,10 +53,11 @@ public class MessagesFragment extends Fragment {
         userList = new ArrayList<>();
         userUidMap = new HashMap<>();
         lastMessagesObjects = new HashMap<>();
+        unreadCountsMap = new HashMap<>();
         allUsersMap = new HashMap<>();
         db = FirebaseFirestore.getInstance();
 
-        adapter = new UserAdapter(requireContext(), userList, userUidMap, lastMessagesObjects);
+        adapter = new UserAdapter(requireContext(), userList, userUidMap, lastMessagesObjects, unreadCountsMap);
         userListView.setAdapter(adapter);
 
         loadUsers();
@@ -61,6 +65,11 @@ public class MessagesFragment extends Fragment {
         userListView.setOnItemClickListener((AdapterView<?> parent, View itemView, int position, long id) -> {
             User selectedUser = userList.get(position);
             String uid = userUidMap.get(selectedUser);
+
+            // Ažuriraj "last seen" vrijeme
+            SharedPreferences prefs = requireContext().getSharedPreferences("chat_prefs", Context.MODE_PRIVATE);
+            prefs.edit().putLong("last_seen_" + uid, System.currentTimeMillis()).apply();
+
             Intent intent = new Intent(requireContext(), ChatActivity.class);
             intent.putExtra("receiverId", uid);
             intent.putExtra("receiverName", selectedUser.getFirstName() + " " + selectedUser.getLastName());
@@ -86,6 +95,7 @@ public class MessagesFragment extends Fragment {
 
     private void loadLastMessagesReceived() {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        SharedPreferences prefs = requireContext().getSharedPreferences("chat_prefs", Context.MODE_PRIVATE);
 
         db.collection("messages")
                 .whereArrayContains("participants", currentUserId)
@@ -96,11 +106,11 @@ public class MessagesFragment extends Fragment {
                     lastMessagesObjects.clear();
                     userUidMap.clear();
                     userList.clear();
+                    unreadCountsMap.clear();
 
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         Message msg = doc.toObject(Message.class);
-                        if (msg == null) continue;
-
+                        if (msg == null || msg.getParticipants() == null) continue;
 
                         String otherUserId = null;
                         for (String participant : msg.getParticipants()) {
@@ -110,18 +120,26 @@ public class MessagesFragment extends Fragment {
                             }
                         }
 
-                        if (otherUserId == null || lastMessagesObjects.containsKey(otherUserId)) continue;
+                        if (otherUserId == null) continue;
 
+                        // Zadnja poruka
+                        if (!lastMessagesObjects.containsKey(otherUserId)) {
+                            lastMessagesObjects.put(otherUserId, msg);
 
-                        lastMessagesObjects.put(otherUserId, msg);
+                            User user = allUsersMap.get(otherUserId);
+                            if (user != null) {
+                                userList.add(user);
+                                userUidMap.put(user, otherUserId);
+                            }
+                        }
 
-                        User user = allUsersMap.get(otherUserId);
-                        if (user != null) {
-                            userList.add(user);
-                            userUidMap.put(user, otherUserId);
+                        // Broj nepročitanih poruka (poruke od drugog korisnika koje su novije od "last seen")
+                        long lastSeen = prefs.getLong("last_seen_" + otherUserId, 0);
+                        if (msg.getSenderId().equals(otherUserId) && msg.getTimestamp() > lastSeen) {
+                            int currentCount = unreadCountsMap.getOrDefault(otherUserId, 0);
+                            unreadCountsMap.put(otherUserId, currentCount + 1);
                         }
                     }
-
 
                     Collections.sort(userList, (u1, u2) -> {
                         String uid1 = userUidMap.get(u1);
