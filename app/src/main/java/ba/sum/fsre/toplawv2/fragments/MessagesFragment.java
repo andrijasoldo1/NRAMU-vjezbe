@@ -155,4 +155,9 @@ public class MessagesFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> Log.e("LastMessage", "Failed to load: " + e.getMessage()));
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadLastMessagesReceived();
+    }
 }

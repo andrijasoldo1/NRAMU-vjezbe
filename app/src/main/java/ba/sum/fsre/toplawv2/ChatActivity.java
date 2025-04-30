@@ -1,7 +1,8 @@
 package ba.sum.fsre.toplawv2;
 
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -49,7 +50,6 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Firebase
         db = FirebaseFirestore.getInstance();
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         receiverId = getIntent().getStringExtra("receiverId");
@@ -62,7 +62,6 @@ public class ChatActivity extends AppCompatActivity {
 
         messagesCollection = db.collection("messages");
 
-        // UI
         recyclerView = findViewById(R.id.messagesRecyclerView);
         messageInput = findViewById(R.id.messageInput);
         sendButton = findViewById(R.id.sendButton);
@@ -73,18 +72,18 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // Load existing messages
+        // Postavi "last seen" odmah
+        SharedPreferences prefs = getSharedPreferences("chat_prefs", Context.MODE_PRIVATE);
+        prefs.edit().putLong("last_seen_" + receiverId, System.currentTimeMillis()).apply();
+
         loadMessages();
 
-        // Send text message
         sendButton.setOnClickListener(v -> sendMessage());
 
-        // Attach file
         attachButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("*/*");
-
-            startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_FILE_REQUEST);
+            startActivityForResult(Intent.createChooser(intent, "Select File"), PICK_FILE_REQUEST);
         });
     }
 
@@ -116,9 +115,9 @@ public class ChatActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(text)) return;
 
         Message message = new Message(currentUserId, receiverId, text, null, System.currentTimeMillis());
-        messagesCollection.add(message).addOnSuccessListener(documentReference -> {
-            messageInput.setText("");
-        }).addOnFailureListener(e -> Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show());
+        messagesCollection.add(message)
+                .addOnSuccessListener(documentReference -> messageInput.setText(""))
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show());
     }
 
     private void sendBase64File(String base64Data) {
@@ -146,3 +145,4 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 }
+
