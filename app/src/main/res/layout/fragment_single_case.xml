@@ -148,4 +148,16 @@
         android:backgroundTint="#356899"
         android:fontFamily="@font/poppins_medium" />
 
+    <ImageButton
+        android:id="@+id/add_to_status_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_above="@id/apply_case_button"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:background="@drawable/circular_background"
+        android:src="@drawable/ic_add"
+        android:contentDescription="Dodaj u status" />
+
+
 </RelativeLayout>

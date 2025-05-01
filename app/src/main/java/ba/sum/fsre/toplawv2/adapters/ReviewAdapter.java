@@ -32,11 +32,19 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     private final Context context;
     private final List<User> lawyers;
     private final Map<String, List<Review>> reviewsMap;
+    private final Map<String, Integer> acceptedCasesMap;
+    private final Map<String, Integer> resolvedCasesMap;
 
-    public ReviewAdapter(Context context, List<User> lawyers, Map<String, List<Review>> reviewsMap) {
+    public ReviewAdapter(Context context,
+                         List<User> lawyers,
+                         Map<String, List<Review>> reviewsMap,
+                         Map<String, Integer> acceptedCasesMap,
+                         Map<String, Integer> resolvedCasesMap) {
         this.context = context;
         this.lawyers = lawyers;
         this.reviewsMap = reviewsMap;
+        this.acceptedCasesMap = acceptedCasesMap;
+        this.resolvedCasesMap = resolvedCasesMap;
     }
 
     @NonNull
@@ -49,10 +57,16 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
         User lawyer = lawyers.get(position);
+        String email = lawyer.geteMail();
 
         holder.name.setText(lawyer.getFirstName() + " " + lawyer.getLastName());
-        holder.email.setText(lawyer.geteMail());
+        holder.email.setText(email);
         holder.expertise.setText(lawyer.getAreaOfExpertise());
+
+        // Case counts
+        int accepted = acceptedCasesMap.getOrDefault(email, 0);
+        int resolved = resolvedCasesMap.getOrDefault(email, 0);
+        holder.caseCounts.setText("Prihvaćeni: " + accepted + " | Riješeni: " + resolved);
 
         // Load lawyer's picture
         if (lawyer.getPicture() != null && !lawyer.getPicture().isEmpty()) {
@@ -68,7 +82,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         }
 
         // Show existing reviews
-        List<Review> reviews = reviewsMap.get(lawyer.geteMail());
+        List<Review> reviews = reviewsMap.get(email);
         if (reviews != null && !reviews.isEmpty()) {
             StringBuilder reviewsText = new StringBuilder();
             for (Review review : reviews) {
@@ -92,22 +106,24 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
                 return;
             }
 
-            // Create a new review object
             Review review = new Review(
-                    lawyer.geteMail(),
+                    email,
                     currentUserEmail,
                     rating,
                     reviewText
             );
 
-            // Add the review to Firestore
             FirebaseFirestore.getInstance().collection("reviews").add(review)
                     .addOnSuccessListener(documentReference -> {
                         Toast.makeText(context, "Review submitted successfully!", Toast.LENGTH_SHORT).show();
                         holder.reviewInput.setText("");
                         holder.ratingBar.setRating(0);
-                        reviewsMap.get(lawyer.geteMail()).add(review); // Update local reviews
-                        notifyDataSetChanged(); // Refresh the view
+
+                        if (!reviewsMap.containsKey(email)) {
+                            reviewsMap.put(email, new java.util.ArrayList<>());
+                        }
+                        reviewsMap.get(email).add(review);
+                        notifyDataSetChanged();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(context, "Failed to submit review: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -122,7 +138,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     }
 
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
-        TextView name, email, expertise, reviews;
+        TextView name, email, expertise, reviews, caseCounts;
         ImageView picture;
         RatingBar ratingBar;
         EditText reviewInput;
@@ -134,6 +150,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             email = itemView.findViewById(R.id.lawyer_email);
             expertise = itemView.findViewById(R.id.lawyer_expertise);
             reviews = itemView.findViewById(R.id.lawyer_reviews);
+            caseCounts = itemView.findViewById(R.id.case_counts);
             picture = itemView.findViewById(R.id.lawyer_picture);
             ratingBar = itemView.findViewById(R.id.lawyer_rating);
             reviewInput = itemView.findViewById(R.id.review_input);

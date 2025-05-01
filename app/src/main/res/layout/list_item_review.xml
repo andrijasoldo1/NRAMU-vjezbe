@@ -28,6 +28,15 @@
         android:text="Expertise"
         android:layout_marginBottom="8dp" />
 
+    <!-- Case Count -->
+    <TextView
+        android:id="@+id/case_counts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Prihvaćeni: 0 | Riješeni: 0"
+        android:textColor="#555"
+        android:layout_marginBottom="8dp" />
+
     <!-- Lawyer Picture -->
     <ImageView
         android:id="@+id/lawyer_picture"
