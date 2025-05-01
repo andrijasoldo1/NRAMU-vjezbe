@@ -65,17 +65,32 @@ public class SingleCaseFragment extends Fragment {
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         Button applyButton = view.findViewById(R.id.apply_case_button);
-        applyButton.setOnClickListener(v -> {
-            if (currentCase != null && currentCase.getUserId() != null) {
-                OfferFormFragment offerFormFragment = OfferFormFragment.newInstance(currentCase.getUserId());
-                requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, offerFormFragment)
-                        .addToBackStack(null)
-                        .commit();
-            } else {
-                Toast.makeText(requireContext(), "Cannot apply, case data is not loaded.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        applyButton.setVisibility(View.GONE); // sakrij dok ne provjerimo status
+
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore.getInstance().collection("users").document(currentUserId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    Boolean isApproved = doc.getBoolean("isApproved");
+                    if (Boolean.TRUE.equals(isApproved)) {
+                        applyButton.setVisibility(View.VISIBLE);
+                        applyButton.setOnClickListener(v -> {
+                            if (currentCase != null && currentCase.getUserId() != null) {
+                                OfferFormFragment offerFormFragment = OfferFormFragment.newInstance(currentCase.getUserId());
+                                requireActivity().getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.fragment_container, offerFormFragment)
+                                        .addToBackStack(null)
+                                        .commit();
+                            } else {
+                                Toast.makeText(requireContext(), "Cannot apply, case data is not loaded.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(requireContext(), "Greška pri provjeri statusa korisnika", Toast.LENGTH_SHORT).show();
+                });
+
 
         ImageButton addToStatusButton = view.findViewById(R.id.add_to_status_button);
         addToStatusButton.setOnClickListener(v -> {
