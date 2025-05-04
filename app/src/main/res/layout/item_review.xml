@@ -1,0 +1,73 @@
+<!-- res/layout/item_review.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:orientation="horizontal" >
+
+    <!-- Container for image and reviewer name (stacked vertically) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginEnd="12dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
+
+    <!-- Reviewer Image -->
+    <ImageView
+        android:id="@+id/reviewerImageView"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_profile"
+        android:clipToOutline="true" />
+
+    <!-- Reviewer Name -->
+    <TextView
+        android:id="@+id/reviewerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reviewer Name"
+        android:textSize="10sp"
+        android:layout_marginTop="4dp"
+        android:gravity="center_horizontal"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:scrollHorizontally="true"
+        android:autoLink="none"
+        android:adjustViewBounds="true" />
+</LinearLayout>
+
+
+
+    <!-- Review text and rating -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/reviewText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Review content here"
+            android:textSize="13sp"
+            android:textColor="#333333" />
+
+        <RatingBar
+            android:id="@+id/reviewRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:max="5"
+            style="@style/Widget.AppCompat.RatingBar.Small" />
+    </LinearLayout>
+
+
+</LinearLayout>

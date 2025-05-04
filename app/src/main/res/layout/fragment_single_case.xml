@@ -135,26 +135,28 @@
             android:orientation="vertical" />
     </LinearLayout>
 
-    <!-- Prijavi se za slučaj Button -->
+    <!-- Apply Button: DECLARE THIS FIRST -->
     <Button
         android:id="@+id/apply_case_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
         android:text="Prijavi se za slučaj"
         android:textSize="16sp"
         android:textColor="#FFFFFF"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
         android:backgroundTint="#356899"
         android:fontFamily="@font/poppins_medium" />
 
+    <!-- Add to Status Button: NOW it can reference apply_case_button -->
     <ImageButton
         android:id="@+id/add_to_status_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_above="@id/apply_case_button"
         android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="75dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/circular_background"
         android:src="@drawable/ic_add"
         android:contentDescription="Dodaj u status" />

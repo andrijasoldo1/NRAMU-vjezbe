@@ -77,18 +77,26 @@ public class AllCaseAdapter extends BaseCaseAdapter {
                         createdByView.setText("Created by: Unknown");
                     });
 
-            // Optionally set an icon
-            iconView.setImageResource(R.drawable.ic_law);
+            // Set the icon dynamically based on the type of case
+            String caseType = aCase.getTypeOfCase();
+            switch (caseType) {
+                case "Radno pravo":
+                    iconView.setImageResource(R.drawable.radno_pravo); // Replace with your image resource
+                    break;
+                case "Kazneno pravo":
+                    iconView.setImageResource(R.drawable.kazneno_pravo); // Replace with your image resource
+                    break;
+                default:
+                    iconView.setImageResource(R.drawable.law); // Default image
+                    break;
+            }
 
         } catch (Exception e) {
             Log.e(TAG, "Error in getView: ", e);
             Toast.makeText(context, "Error displaying case details", Toast.LENGTH_SHORT).show();
         }
 
-
-
-
-
         return convertView;
     }
 }
+

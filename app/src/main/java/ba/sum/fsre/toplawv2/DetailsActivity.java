@@ -12,6 +12,8 @@ import android.widget.ImageButton;
 import com.google.android.material.navigation.NavigationView;
 
 import ba.sum.fsre.toplawv2.fragments.AllCasesFragment;
+import ba.sum.fsre.toplawv2.fragments.LawyersFragment;
+import ba.sum.fsre.toplawv2.fragments.ProfileFragment;
 import ba.sum.fsre.toplawv2.fragments.UserCasesFragment;
 import ba.sum.fsre.toplawv2.fragments.DetailsFragment;
 import ba.sum.fsre.toplawv2.fragments.MessagesFragment;
@@ -54,7 +56,7 @@ public class DetailsActivity extends AppCompatActivity {
                     return true;
                 }
                 // Otherwise, create a new DetailsFragment.
-                selectedFragment = new DetailsFragment();
+                selectedFragment = new ProfileFragment();
                 // If your intention was to launch a different activity for profile (e.g. Game1Activity),
                 // you can remove the fragment transaction and use the following line instead:
                 // startActivity(new Intent(this, Game1Activity.class));
@@ -81,6 +83,10 @@ public class DetailsActivity extends AppCompatActivity {
             }
             else if (itemId == R.id.nav_calendar) {
                 startActivity(new Intent(this, CalendarActivity.class));
+            } else if (itemId == R.id.nav_lawyers) {
+                if (!(currentFragment instanceof LawyersFragment)) {
+                    selectedFragment = new LawyersFragment();
+                }
             }
 
 

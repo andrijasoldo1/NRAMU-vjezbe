@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFD">
+
+    <LinearLayout
+        android:id="@+id/LawyerRootLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Decorative half-circles background -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+
+            <View
+                android:id="@+id/LawyerCircle1"
+                android:layout_width="500dp"
+                android:layout_height="500dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="-280dp"
+                android:background="@drawable/profile_circle_1" />
+
+            <View
+                android:id="@+id/LawyerCircle2"
+                android:layout_width="420dp"
+                android:layout_height="420dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="-230dp"
+                android:background="@drawable/profile_circle_2" />
+
+            <View
+                android:id="@+id/LawyerCircle3"
+                android:layout_width="340dp"
+                android:layout_height="340dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="-180dp"
+                android:background="@drawable/profile_circle_3" />
+
+            <View
+                android:id="@+id/LawyerCircle4"
+                android:layout_width="260dp"
+                android:layout_height="260dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="-130dp"
+                android:background="@drawable/profile_circle_4" />
+
+            <View
+                android:id="@+id/LawyerCircle5"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="-80dp"
+                android:background="@drawable/profile_circle_5" />
+
+            <!-- Back Button -->
+            <ImageButton
+                android:id="@+id/LawyerBackButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_margin="16dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_back"
+                android:contentDescription="Back" />
+        </RelativeLayout>
+
+        <!-- Profile Image -->
+        <FrameLayout
+            android:id="@+id/LawyerProfileImageContainer"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="-280dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/LawyerProfileImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_profile"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#FFFFFF" />
+        </FrameLayout>
+
+        <!-- Name and Type -->
+        <TextView
+            android:id="@+id/LawyerNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="User Name"
+            android:textSize="22sp"
+            android:textColor="#333333"
+            android:fontFamily="@font/poppins_semibold" />
+
+        <TextView
+            android:id="@+id/LawyerTypeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:text="Tip prava"
+            android:textSize="15sp"
+            android:textColor="#333333"
+            android:fontFamily="@font/poppins_semibold" />
+
+        <!-- Contact Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/LawyerContactCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Email -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_mail"
+                        app:tint="#8CB6E8" />
+
+                    <TextView
+                        android:id="@+id/LawyerEmailText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="email@example.com"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <!-- Phone -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_profile"
+                        app:tint="#8CB6E8" />
+
+                    <TextView
+                        android:id="@+id/LawyerPhoneText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="+1 234 567 8900"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- CV Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/LawyerCvCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/LawyerDocumentText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CV"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:id="@+id/LawyerDocumentThumbnailContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="230dp"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:background="#FFFFFF"
+                    android:padding="8dp"
+                    android:elevation="4dp">
+
+                    <LinearLayout
+                        android:id="@+id/LawyerThumbnailContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Overall Rating -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/LawyerOverallRatingCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/LawyerOverallRatingText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Overall Rating"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:fontFamily="@font/poppins_semibold" />
+
+                <RatingBar
+                    android:id="@+id/LawyerOverallRatingBar"
+                    style="@style/Widget.AppCompat.RatingBar.Indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="0.1"
+                    android:rating="4.5"
+                    android:isIndicator="true"
+                    android:layout_marginStart="16dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Individual Reviews -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/LawyerIndividualReviewsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:id="@+id/LawyerReviewsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/LawyerReviewsTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reviews"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Dynamic review items added programmatically -->
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</ScrollView>

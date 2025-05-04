@@ -84,7 +84,6 @@ public class AllCasesFragment extends Fragment {
                     .commit();
         });
 
-
         // Load All Non-Anonymous Cases
         loadAllCases();
 
@@ -109,6 +108,7 @@ public class AllCasesFragment extends Fragment {
 
         return view;
     }
+
 
 
 
